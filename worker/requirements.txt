@@ -1,0 +1,13 @@
+celery[redis]>=5.4.0
+redis>=5.0.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+pillow>=11.0.0
+boto3>=1.35.0
+realesrgan>=0.3.0
+basicsr>=1.4.2
+torch>=2.0.0
+torchvision>=0.15.0
+timm>=0.9.0
+opencv-python-headless>=4.8.0
+pydantic-settings>=2.6.0

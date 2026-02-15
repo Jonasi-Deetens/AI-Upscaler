@@ -1,0 +1,20 @@
+# Dev image: install deps and run next dev (Turbopack). Source is mounted at runtime.
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY docker-dev-entrypoint.sh /docker-dev-entrypoint.sh
+RUN chmod +x /docker-dev-entrypoint.sh
+
+COPY . .
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV WATCHPACK_POLLING=true
+
+ENTRYPOINT ["/docker-dev-entrypoint.sh"]
+CMD ["npm", "run", "dev"]

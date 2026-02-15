@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Tailwind v4: scan src for class names (paths relative to this file) */
+@source "../**/*.tsx";
+@source "../**/*.ts";
+
+/* Class-based dark mode (next-themes toggles .dark on html) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light: soft gradient mesh background */
+@layer base {
+  body {
+    @apply antialiased text-neutral-800;
+    background-color: #fafbff;
+    background-image:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(240, 230, 255, 0.6), transparent),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(255, 240, 245, 0.35), transparent),
+      radial-gradient(ellipse 60% 40% at 0% 80%, rgba(255, 248, 240, 0.4), transparent);
+  }
+}
+
+/* Dark: when html has .dark (next-themes) */
+html.dark,
+html.dark body {
+  color: #e4e4e7;
+  background-color: #0c0b0f !important;
+  background-image:
+    radial-gradient(ellipse 100% 60% at 50% -10%, rgba(88, 28, 135, 0.25), transparent 50%),
+    radial-gradient(ellipse 80% 40% at 100% 20%, rgba(147, 51, 234, 0.12), transparent 50%),
+    radial-gradient(ellipse 60% 50% at 0% 60%, rgba(217, 70, 239, 0.08), transparent 50%) !important;
+}
+html.dark body main {
+  background: transparent !important;
+}
+
+/* AI-style gradient (violet → fuchsia → warm) – works on light and dark */
+.gradient-ai {
+  background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #f97316 100%);
+}
+.gradient-ai:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 50%, #ea580c 100%);
+}
+
+.gradient-ai-text {
+  background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ring-gradient:focus-visible {
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #a78bfa;
+}

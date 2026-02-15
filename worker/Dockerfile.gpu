@@ -1,0 +1,36 @@
+# GPU worker: PyTorch with CUDA so Real-ESRGAN runs on the GPU.
+# Requires: host with NVIDIA GPU + nvidia-container-toolkit; compose with deploy.resources.devices (gpu).
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libgl1 \
+    libglib2.0-0 \
+    git \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PyTorch with CUDA 12.1 first so Real-ESRGAN can use the GPU.
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# SwinIR (required for "Detailed" method)
+RUN git clone --depth 1 https://github.com/JingyunLiang/SwinIR.git /app/SwinIR \
+    && mkdir -p /app/SwinIR/model_zoo/swinir \
+    && (cd /app/SwinIR/model_zoo/swinir && wget -q https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth)
+
+COPY . .
+
+RUN adduser --disabled-password --gecos "" --uid 1000 celery \
+    && chown -R celery:celery /app
+
+USER celery
+
+ENV SWINIR_DIR=/app/SwinIR
+# Use first GPU. Set REAL_ESRGAN_GPU_ID in env to override.
+ENV REAL_ESRGAN_GPU_ID=0
+CMD ["celery", "-A", "app.celery_app", "worker", "-B", "--loglevel=info", "--concurrency=1"]

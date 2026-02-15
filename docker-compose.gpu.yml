@@ -1,0 +1,17 @@
+# GPU worker override. Use when you have an NVIDIA GPU and nvidia-container-toolkit.
+# Run: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
+# Set REAL_ESRGAN_GPU_ID=0 in .env (or here) so the worker uses the GPU.
+services:
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.gpu
+    environment:
+      REAL_ESRGAN_GPU_ID: "0"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

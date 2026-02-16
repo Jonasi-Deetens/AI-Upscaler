@@ -8,6 +8,22 @@ import { RadioGroup } from "@/components/ui/RadioGroup";
 import { uploadJobs } from "@/lib/api";
 import type { UploadOptions, UpscaleMethod } from "@/lib/types";
 
+type PresetId = "photo" | "anime" | "document" | "custom";
+
+const PRESETS: Array<{
+  id: PresetId;
+  label: string;
+  scale: 2 | 4;
+  method: UpscaleMethod;
+  denoiseFirst: boolean;
+  faceEnhance: boolean;
+}> = [
+  { id: "photo", label: "Photo", scale: 4, method: "real_esrgan", denoiseFirst: false, faceEnhance: true },
+  { id: "anime", label: "Anime", scale: 4, method: "real_esrgan_anime", denoiseFirst: false, faceEnhance: false },
+  { id: "document", label: "Document", scale: 4, method: "swinir", denoiseFirst: true, faceEnhance: false },
+  { id: "custom", label: "Custom", scale: 4, method: "real_esrgan", denoiseFirst: false, faceEnhance: false },
+];
+
 const scaleOptions = [
   { value: "2" as const, label: "2×" },
   { value: "4" as const, label: "4×" },
@@ -23,17 +39,31 @@ const methodOptions = [
 
 export default function UploadPage() {
   const router = useRouter();
+  const [preset, setPreset] = useState<PresetId>("photo");
   const [files, setFiles] = useState<File[]>([]);
   const [scale, setScale] = useState<2 | 4>(4);
   const [method, setMethod] = useState<UpscaleMethod>("real_esrgan");
   const [denoiseFirst, setDenoiseFirst] = useState(false);
-  const [faceEnhance, setFaceEnhance] = useState(false);
+  const [faceEnhance, setFaceEnhance] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
+  const applyPreset = useCallback((id: PresetId) => {
+    setPreset(id);
+    if (id === "custom") return;
+    const p = PRESETS.find((x) => x.id === id);
+    if (p) {
+      setScale(p.scale);
+      setMethod(p.method);
+      setDenoiseFirst(p.denoiseFirst);
+      setFaceEnhance(p.faceEnhance);
+    }
+  }, []);
+
   const isUpscale = method !== "background_remove";
   const submitScale: 1 | 2 | 4 = method === "background_remove" ? 1 : scale;
+  const showCustomControls = preset === "custom";
 
   const handleFilesSelected = useCallback((newFiles: File[]) => {
     setFiles(newFiles);
@@ -83,52 +113,75 @@ export default function UploadPage() {
             maxFiles={10}
             className="mb-4"
           />
-          {isUpscale && (
-            <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
-              <RadioGroup
-                name="scale"
-                label="Scale"
-                options={scaleOptions as { value: "2" | "4"; label: string }[]}
-                value={String(scale) as "2" | "4"}
-                onChange={(v) => setScale(Number(v) as 2 | 4)}
-              />
-            </div>
-          )}
           <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
-            <RadioGroup
-              name="method"
-              label="Method"
-              options={methodOptions}
-              value={method}
-              onChange={setMethod}
-            />
+            <p className="text-sm font-medium text-neutral-800 dark:text-zinc-200 mb-3">Preset</p>
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => applyPreset(p.id)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium border ${
+                    preset === p.id
+                      ? "gradient-ai border text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30"
+                      : "border-neutral-200 dark:border-zinc-600 text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-700"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm space-y-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={denoiseFirst}
-                onChange={(e) => setDenoiseFirst(e.target.checked)}
-                className="rounded border-neutral-300 dark:border-zinc-600"
-              />
-              <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
-                Denoise first
-              </span>
-            </label>
-            {isUpscale && (
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={faceEnhance}
-                  onChange={(e) => setFaceEnhance(e.target.checked)}
-                  className="rounded border-neutral-300 dark:border-zinc-600"
+          {showCustomControls && (
+            <>
+              {isUpscale && (
+                <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
+                  <RadioGroup
+                    name="scale"
+                    label="Scale"
+                    options={scaleOptions as { value: "2" | "4"; label: string }[]}
+                    value={String(scale) as "2" | "4"}
+                    onChange={(v) => setScale(Number(v) as 2 | 4)}
+                  />
+                </div>
+              )}
+              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
+                <RadioGroup
+                  name="method"
+                  label="Method"
+                  options={methodOptions}
+                  value={method}
+                  onChange={setMethod}
                 />
-                <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
-                  Face enhance (GFPGAN)
-                </span>
-              </label>
-            )}
-          </div>
+              </div>
+              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={denoiseFirst}
+                    onChange={(e) => setDenoiseFirst(e.target.checked)}
+                    className="rounded border-neutral-300 dark:border-zinc-600"
+                  />
+                  <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
+                    Denoise first
+                  </span>
+                </label>
+                {isUpscale && (
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={faceEnhance}
+                      onChange={(e) => setFaceEnhance(e.target.checked)}
+                      className="rounded border-neutral-300 dark:border-zinc-600"
+                    />
+                    <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
+                      Face enhance (GFPGAN)
+                    </span>
+                  </label>
+                )}
+              </div>
+            </>
+          )}
           {error && (
             <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
           )}

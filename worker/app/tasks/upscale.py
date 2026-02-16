@@ -169,6 +169,10 @@ def upscale_task(job_id: str) -> None:
 
     except Exception as e:
         logger.exception("job_id=%s failed: %s", job_id, e)
+        job_after = _get_job(job_id)
+        if job_after and job_after.status == JOB_STATUS_CANCELLED:
+            logger.info("job_id=%s was cancelled, not overwriting with failed", job_id)
+            return
         msg = str(e)
         if "SwinIR repo not found" in msg or "SwinIR" in msg and "not available" in msg:
             msg = (

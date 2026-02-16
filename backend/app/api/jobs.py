@@ -1,10 +1,12 @@
 import logging
+import tempfile
 from datetime import datetime
+from pathlib import Path
 from uuid import UUID
 from io import BytesIO
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 from PIL import Image
 
@@ -13,7 +15,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.storage import get_storage
 from app.models.job import JOB_STATUS_COMPLETED
-from app.core.celery_client import enqueue_upscale
+from app.core.celery_client import celery_app, enqueue_upscale
 from app.schemas.job import JobResponse, UploadResponse
 from app.services import job_service
 
@@ -21,16 +23,22 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
 
 def _job_to_response(request: Request, job) -> JobResponse:
+    base = str(request.base_url).rstrip("/")
     result_url = None
     if job.status == JOB_STATUS_COMPLETED and job.result_key:
-        base = str(request.base_url).rstrip("/")
         result_url = f"{base}/api/jobs/{job.id}/download"
+    original_url = None
+    if job.original_key:
+        original_url = f"{base}/api/jobs/{job.id}/original"
+    thumbnail_url = f"{base}/api/jobs/{job.id}/thumbnail" if job.original_key else None
     return JobResponse(
         id=job.id,
         status=job.status,
         original_filename=job.original_filename,
         result_key=job.result_key,
         result_url=result_url,
+        original_url=original_url,
+        thumbnail_url=thumbnail_url,
         scale=job.scale,
         method=job.method,
         denoise_first=getattr(job, "denoise_first", False),
@@ -120,9 +128,52 @@ def upload_jobs(
         storage.put(job.original_key, upload_file.file)
 
     for job in jobs:
-        enqueue_upscale(job.id)
+        task_id = enqueue_upscale(job.id)
+        if task_id:
+            job.celery_task_id = task_id
+    db.commit()
 
     return UploadResponse(job_ids=[j.id for j in jobs])
+
+
+@router.get("/batch-download")
+def batch_download(
+    ids: str,
+    db: Session = Depends(get_db),
+) -> Response:
+    """Stream a ZIP of all completed, non-expired job results."""
+    import zipfile
+
+    if not ids or not ids.strip():
+        raise HTTPException(400, detail="ids required (comma-separated job IDs)")
+    job_ids = [UUID(x.strip()) for x in ids.split(",") if x.strip()]
+    jobs = job_service.get_jobs_by_ids(db, job_ids)
+    now = datetime.utcnow()
+    to_zip = [
+        j for j in jobs
+        if j.status == JOB_STATUS_COMPLETED and j.result_key and j.expires_at > now
+    ]
+    if not to_zip:
+        raise HTTPException(404, detail="No completed, non-expired results to download")
+
+    storage = get_storage()
+    buf = BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for job in to_zip:
+            with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                try:
+                    storage.get_to_file(job.result_key, Path(tmp.name))
+                    base, _ = (job.original_filename.rsplit(".", 1) if "." in job.original_filename else (job.original_filename, ""))
+                    zf.write(tmp.name, arcname=f"{base}_upscaled.png")
+                finally:
+                    Path(tmp.name).unlink(missing_ok=True)
+    buf.seek(0)
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=upscaled_batch.zip"},
+    )
 
 
 @router.post("/{job_id}/cancel", response_model=JobResponse)
@@ -131,12 +182,21 @@ def cancel_job_endpoint(
     job_id: UUID,
     db: Session = Depends(get_db),
 ) -> JobResponse:
-    job = job_service.cancel_job(db, job_id)
+    job = job_service.get_job_by_id(db, job_id)
     if not job:
+        raise HTTPException(404, detail="Job not found")
+    if job.status not in ("queued", "processing"):
         raise HTTPException(
             400,
             detail="Job cannot be cancelled (not found or already completed/failed/cancelled)",
         )
+    task_id = getattr(job, "celery_task_id", None)
+    if task_id:
+        try:
+            celery_app.control.revoke(task_id, terminate=True, signal="SIGTERM")
+        except Exception as e:
+            logger.warning("revoke task_id=%s failed: %s", task_id, e)
+    job = job_service.cancel_job(db, job_id)
     return _job_to_response(request, job)
 
 
@@ -157,6 +217,79 @@ def download_result(
     base, _ = job.original_filename.rsplit(".", 1) if "." in job.original_filename else (job.original_filename, "")
     download_name = f"{base}_upscaled.png"
     return FileResponse(path, filename=download_name, media_type="image/png")
+
+
+@router.get("/{job_id}/original")
+def serve_original(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+) -> FileResponse:
+    """Serve the original uploaded image (for before/after comparison)."""
+    job = job_service.get_job_by_id(db, job_id)
+    if not job or not job.original_key:
+        raise HTTPException(404, detail="Original not available")
+    storage = get_storage()
+    path = storage.get_url(job.original_key)
+    return FileResponse(path, filename=job.original_filename)
+
+
+@router.get("/{job_id}/thumbnail")
+def serve_thumbnail(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+) -> Response:
+    """Serve a small thumbnail of the original image."""
+    job = job_service.get_job_by_id(db, job_id)
+    if not job or not job.original_key:
+        raise HTTPException(404, detail="Thumbnail not available")
+    storage = get_storage()
+    with tempfile.NamedTemporaryFile(suffix=Path(job.original_filename).suffix or ".png", delete=False) as tmp:
+        try:
+            storage.get_to_file(job.original_key, Path(tmp.name))
+            img = Image.open(tmp.name).convert("RGB")
+            img.thumbnail((120, 120), Image.Resampling.LANCZOS)
+            buf = BytesIO()
+            img.save(buf, format="JPEG", quality=85)
+            buf.seek(0)
+            return Response(content=buf.getvalue(), media_type="image/jpeg")
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
+
+
+@router.post("/{job_id}/retry", response_model=JobResponse)
+def retry_job_endpoint(
+    request: Request,
+    job_id: UUID,
+    db: Session = Depends(get_db),
+) -> JobResponse:
+    """Create a new job with the same input and options as the failed job."""
+    job = job_service.get_job_by_id(db, job_id)
+    if not job:
+        raise HTTPException(404, detail="Job not found")
+    if job.status != "failed":
+        raise HTTPException(400, detail="Only failed jobs can be retried")
+    if not job.original_key:
+        raise HTTPException(400, detail="Original file not available for retry")
+
+    new_jobs = job_service.create_jobs(
+        db,
+        [job.original_filename],
+        scale=job.scale,
+        method=job.method,
+        denoise_first=job.denoise_first,
+        face_enhance=job.face_enhance,
+    )
+    new_job = new_jobs[0]
+    storage = get_storage()
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        try:
+            storage.get_to_file(job.original_key, Path(tmp.name))
+            with open(tmp.name, "rb") as f:
+                storage.put(new_job.original_key, f)
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
+    enqueue_upscale(new_job.id)
+    return _job_to_response(request, new_job)
 
 
 @router.get("", response_model=list[JobResponse])

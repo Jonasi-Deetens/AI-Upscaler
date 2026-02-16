@@ -15,6 +15,8 @@ class JobResponse(BaseModel):
     original_filename: str
     result_key: str | None
     result_url: str | None
+    original_url: str | None = None
+    thumbnail_url: str | None = None
     scale: int
     method: str
     denoise_first: bool = False

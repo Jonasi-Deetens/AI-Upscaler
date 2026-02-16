@@ -359,7 +359,7 @@ After pruning, the next `docker compose build` will take longer because the work
 ## Run without Docker
 
 1. **Postgres & Redis** – run locally (e.g. Postgres 16, Redis 7).
-2. **Backend:** `cd backend && pip install -r requirements.txt && alembic upgrade head && uvicorn app.main:app --reload`
+2. **Backend:** `cd backend`, then `pip install -r requirements.txt`, then `uvicorn app.main:app --reload`. Migrations run automatically on startup. To run them manually (e.g. from a venv): `python -m alembic upgrade head`.
 3. **Worker:** `cd worker && pip install -r requirements.txt && celery -A app.celery_app worker -B --loglevel=info --concurrency=1`
 4. **Frontend:** `cd frontend && npm install && NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev`
 

@@ -14,25 +14,72 @@
   }
 }
 
-/* Light: clean, Apple-style (near white with a hint of warmth) */
+/* Light: modern soft base with subtle gradient depth */
 @layer base {
   body {
     @apply antialiased text-neutral-800;
-    background-color: #fbfbfd;
+    background-color: #f8f9fc;
     background-image:
-      radial-gradient(ellipse 100% 60% at 50% -30%, rgba(250, 250, 252, 0.9), transparent 60%);
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(248, 250, 255, 0.95), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(245, 243, 255, 0.6), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 0% 80%, rgba(255, 250, 248, 0.5), transparent 45%);
+    min-height: 100vh;
   }
 }
 
-/* Dark: Apple-style dark (neutral, minimal) */
+/* Dark: near-black with very soft depth (no harsh glares) */
 html.dark,
 html.dark body {
   color: #e4e4e7;
-  background-color: #000000 !important;
-  background-image: none !important;
+  background-color: #0a0a0f;
+  background-image:
+    radial-gradient(ellipse 100% 60% at 50% -15%, rgba(28, 26, 38, 0.4), transparent 55%),
+    radial-gradient(ellipse 80% 40% at 85% 55%, rgba(35, 28, 48, 0.12), transparent 50%),
+    radial-gradient(ellipse 60% 50% at 5% 85%, rgba(22, 25, 40, 0.15), transparent 50%);
+  min-height: 100vh;
 }
 html.dark body main {
   background: transparent !important;
+}
+
+/* Hero: gradient divider + soft gradient smears */
+.section-hero {
+  position: relative;
+  overflow: hidden;
+}
+.section-hero::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(circle 180px at 85% 5%, rgba(139, 92, 246, 0.22) 0%, transparent 50%),
+    radial-gradient(circle 140px at 10% 95%, rgba(249, 115, 22, 0.14) 0%, rgba(217, 70, 239, 0.06) 50%, transparent 55%);
+  filter: blur(40px);
+}
+.section-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, #8b5cf6 20%, #d946ef 50%, #f97316 80%, transparent 100%);
+  opacity: 0.5;
+  z-index: 1;
+}
+.dark .section-hero::before {
+  background:
+    radial-gradient(circle 180px at 85% 5%, rgba(139, 92, 246, 0.18) 0%, transparent 50%),
+    radial-gradient(circle 140px at 10% 95%, rgba(249, 115, 22, 0.1) 0%, rgba(217, 70, 239, 0.05) 50%, transparent 55%);
+}
+.dark .section-hero::after {
+  opacity: 0.4;
+}
+.section-hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* AI-style gradient (violet → fuchsia → warm) – works on light and dark */

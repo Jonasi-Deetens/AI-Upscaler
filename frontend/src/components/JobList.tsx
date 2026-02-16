@@ -15,7 +15,20 @@ const statusLabels: Record<string, string> = {
 function JobRow({ job }: { job: Job }) {
   return (
     <Link href={`/jobs?ids=${job.id}`} className="block gradient-border text-left transition-shadow">
-      <div className="gradient-border-inner flex items-center justify-between gap-2">
+      <div className="gradient-border-inner flex items-center gap-3">
+        {job.thumbnail_url ? (
+          <div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 dark:bg-zinc-700 relative">
+            <img
+              src={job.thumbnail_url}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="shrink-0 w-10 h-10 rounded-lg bg-neutral-100 dark:bg-zinc-700 flex items-center justify-center text-neutral-400 dark:text-zinc-500 text-xs">
+            —
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <p className="font-medium text-neutral-900 dark:text-zinc-100 truncate">
             {job.original_filename}
@@ -72,9 +85,6 @@ export function JobList() {
 
   return (
     <section className="w-full min-h-0 flex flex-col">
-      <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4 shrink-0">
-        Recent jobs
-      </h2>
       <ul className="space-y-3 min-h-0">
         {jobs.map((job) => (
           <li key={job.id}>

@@ -11,5 +11,7 @@ celery_app = Celery(
 TASK_UPSCALE = "app.tasks.upscale.upscale_task"
 
 
-def enqueue_upscale(job_id: str) -> None:
-    celery_app.send_task(TASK_UPSCALE, args=[str(job_id)])
+def enqueue_upscale(job_id: str) -> str | None:
+    """Enqueue upscale task; returns Celery task_id for revoke on cancel."""
+    result = celery_app.send_task(TASK_UPSCALE, args=[str(job_id)])
+    return result.id if result else None

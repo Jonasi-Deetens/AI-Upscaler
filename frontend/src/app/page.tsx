@@ -16,9 +16,12 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero: comparison above title, then title left + job list right */}
-      <section className="min-h-screen flex flex-col gap-4 px-5 py-12 lg:py-16 max-w-6xl mx-auto">
+      <section className="section-hero min-h-screen flex flex-col gap-4 px-5 py-12 lg:py-16 max-w-6xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-16 flex-1 min-h-0">
           <div className="flex flex-col justify-center lg:max-w-md">
+            <span className="inline-flex w-fit items-center rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 dark:from-violet-400/15 dark:to-fuchsia-400/15 border border-violet-200/60 dark:border-violet-500/30 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 mb-5">
+              AI-powered upscaling
+            </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
               AI Upscaler
             </h1>
@@ -67,7 +70,7 @@ export default function Home() {
       </section>
 
       {/* Job list */}
-      <section id="recent-jobs" className="max-w-3xl mx-auto px-5 py-16 sm:py-24 scroll-mt-6">
+      <section id="recent-jobs" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 scroll-mt-6">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Recent jobs.
         </h2>
@@ -77,7 +80,7 @@ export default function Home() {
       </section>
 
       {/* What it does */}
-      <section className="max-w-3xl mx-auto px-5 py-16 sm:py-24">
+      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Better resolution, automatically.
         </h2>
@@ -87,7 +90,7 @@ export default function Home() {
       </section>
 
       {/* Methods */}
-      <section className="max-w-3xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
           Built for different needs.
         </h2>
@@ -123,31 +126,37 @@ export default function Home() {
       </section>
 
       {/* Optional steps */}
-      <section className="max-w-3xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
           Simple workflow.
         </h2>
-        <ol className="space-y-8">
+        <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             "Upload one or more images (up to 10 per batch).",
             "Pick scale and method. Optionally enable denoise or face enhance.",
             "Processing runs in the background. Refresh to see status.",
             "Download the result before it expires (1 hour).",
           ].map((step, i) => (
-            <li key={i} className="flex gap-4">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-200 dark:bg-zinc-700 text-neutral-600 dark:text-zinc-300 text-sm font-medium">
+            <li
+              key={i}
+              className="flex flex-col rounded-xl border border-neutral-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800/60 px-5 py-4 shadow-sm shadow-neutral-200/50 dark:shadow-none"
+            >
+              <span
+                className="mb-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500/15 to-fuchsia-500/15 dark:from-violet-400/20 dark:to-fuchsia-400/20 text-sm font-semibold text-violet-600 dark:text-violet-400"
+                aria-hidden
+              >
                 {i + 1}
               </span>
-              <span className="text-neutral-600 dark:text-zinc-400 leading-relaxed pt-0.5">
+              <p className="text-[15px] leading-relaxed text-neutral-600 dark:text-zinc-400">
                 {step}
-              </span>
+              </p>
             </li>
           ))}
         </ol>
       </section>
 
       {/* Limits */}
-      <section className="max-w-3xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Limits.
         </h2>
@@ -157,7 +166,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-3xl mx-auto px-5 pb-24 sm:pb-32 border-t border-neutral-200/80 dark:border-zinc-800/80 pt-16 sm:pt-24">
+      <section className="max-w-6xl mx-auto px-5 pb-24 sm:pb-32 border-t border-neutral-200/80 dark:border-zinc-800/80 pt-16 sm:pt-24">
         <div className="flex justify-center">
           <Link
             href="/upload"

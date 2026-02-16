@@ -23,7 +23,9 @@ export default function RootLayout({
           <div className="fixed top-4 right-4 z-50">
             <ThemeToggle />
           </div>
-          {children}
+          <div className="relative z-10 min-h-screen">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

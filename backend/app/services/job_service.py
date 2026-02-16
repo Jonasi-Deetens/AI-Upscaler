@@ -25,6 +25,8 @@ def create_jobs(
     filenames: list[str],
     scale: int,
     method: str,
+    denoise_first: bool = False,
+    face_enhance: bool = False,
 ) -> list[Job]:
     expires_at = datetime.utcnow() + timedelta(minutes=settings.job_expiry_minutes)
     jobs = []
@@ -36,6 +38,8 @@ def create_jobs(
             result_key=None,
             scale=scale,
             method=method,
+            denoise_first=denoise_first,
+            face_enhance=face_enhance,
             expires_at=expires_at,
         )
         db.add(job)

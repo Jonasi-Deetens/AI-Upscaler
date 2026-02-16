@@ -61,7 +61,8 @@ def _update_job_status(
         db.close()
 
 
-@celery_app.task
+# Name must match backend celery_client.TASK_UPSCALE so tasks are received
+@celery_app.task(name="app.tasks.upscale.upscale_task")
 def upscale_task(job_id: str) -> None:
     logger.info("upscale_task started job_id=%s", job_id)
     job = _get_job(job_id)
@@ -112,28 +113,29 @@ def upscale_task(job_id: str) -> None:
                     logger.warning("job_id=%s SwinIR requested but repo not found at %s", job_id, swinir_dir)
                     return
 
-            method_label = "Real-ESRGAN" if job.method == "real_esrgan" else "SwinIR"
-            detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
-            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail)
-            logger.info("job_id=%s running upscaler method=%s scale=%s", job_id, job.method, job.scale)
+            from app.pipeline import METHOD_BACKGROUND_REMOVE, UPSCALE_METHODS, run as pipeline_run
 
-            if job.method == "real_esrgan":
-                from app.upscalers import real_esrgan
-                real_esrgan.upscale(
-                    input_path,
-                    output_path,
-                    scale=job.scale,
-                    tile=settings.real_esrgan_tile,
-                )
-            elif job.method == "swinir":
-                from app.upscalers import swinir
-                swinir.upscale(
-                    input_path,
-                    output_path,
-                    scale=job.scale,
-                    tile=256,
-                )
+            method_labels = {
+                "real_esrgan": "Real-ESRGAN",
+                "swinir": "SwinIR",
+                "esrgan": "ESRGAN (RRDB)",
+                "real_esrgan_anime": "Anime (Real-ESRGAN)",
+                "background_remove": "Background remove",
+            }
+            method_label = method_labels.get(job.method, job.method)
+            if job.method == METHOD_BACKGROUND_REMOVE:
+                detail = "Running Background remove…"
             else:
+                detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
+            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail)
+            logger.info(
+                "job_id=%s running pipeline method=%s scale=%s denoise=%s face_enhance=%s",
+                job_id, job.method, job.scale,
+                getattr(job, "denoise_first", False),
+                getattr(job, "face_enhance", False),
+            )
+
+            if job.method not in UPSCALE_METHODS and job.method != METHOD_BACKGROUND_REMOVE:
                 _update_job_status(
                     job_id,
                     JOB_STATUS_FAILED,
@@ -141,6 +143,8 @@ def upscale_task(job_id: str) -> None:
                     finished_at=datetime.utcnow(),
                 )
                 return
+
+            pipeline_run(job, input_path, output_path)
 
             # If user cancelled while we were processing, don't upload result
             job_after = _get_job(job_id)

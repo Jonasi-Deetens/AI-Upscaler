@@ -1,9 +1,5 @@
-import uuid
-from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, Text, Column
+from sqlalchemy import Boolean, String, Integer, DateTime, Text, Column
 from sqlalchemy.dialects.postgresql import UUID
-
-# Minimal model matching backend jobs table for worker updates
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -12,6 +8,8 @@ class Base(DeclarativeBase):
 
 
 class Job(Base):
+    """Minimal model matching backend jobs table for worker updates."""
+
     __tablename__ = "jobs"
 
     id = Column(UUID(as_uuid=True), primary_key=True)
@@ -21,6 +19,8 @@ class Job(Base):
     result_key = Column(String(512), nullable=True)
     scale = Column(Integer, nullable=False)
     method = Column(String(32), nullable=False)
+    denoise_first = Column(Boolean, nullable=False, default=False)
+    face_enhance = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, nullable=False)
     expires_at = Column(DateTime, nullable=False)
     started_at = Column(DateTime, nullable=True)

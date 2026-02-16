@@ -17,6 +17,13 @@ function JobsContent() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const { refetch } = usePollJobs(ids, setJobs);
 
+  const handleCancelled = (updatedJob: Job) => {
+    setJobs((prev) =>
+      prev.map((j) => (j.id === updatedJob.id ? updatedJob : j))
+    );
+    refetch();
+  };
+
   return (
     <main className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 py-12">
@@ -37,7 +44,7 @@ function JobsContent() {
           <ul className="space-y-4">
             {jobs.map((job) => (
               <li key={job.id}>
-                <JobCard job={job} onCancelled={refetch} />
+                <JobCard job={job} onCancelled={handleCancelled} />
               </li>
             ))}
           </ul>

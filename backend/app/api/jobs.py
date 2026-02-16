@@ -33,6 +33,8 @@ def _job_to_response(request: Request, job) -> JobResponse:
         result_url=result_url,
         scale=job.scale,
         method=job.method,
+        denoise_first=getattr(job, "denoise_first", False),
+        face_enhance=getattr(job, "face_enhance", False),
         created_at=job.created_at,
         expires_at=job.expires_at,
         started_at=getattr(job, "started_at", None),
@@ -42,12 +44,23 @@ def _job_to_response(request: Request, job) -> JobResponse:
     )
 
 
+ALLOWED_METHODS = (
+    "real_esrgan",
+    "swinir",
+    "esrgan",
+    "real_esrgan_anime",
+    "background_remove",
+)
+
+
 @router.post("/upload", response_model=UploadResponse)
 def upload_jobs(
     request: Request,
     files: list[UploadFile] = File(...),
     scale: int = Form(4),
     method: str = Form("real_esrgan"),
+    denoise_first: str = Form("false"),
+    face_enhance: str = Form("false"),
     db: Session = Depends(get_db),
 ) -> UploadResponse:
     if len(files) > settings.max_files_per_batch:
@@ -55,9 +68,12 @@ def upload_jobs(
             400,
             detail=f"Too many files. Max {settings.max_files_per_batch} per batch.",
         )
-    if method not in ("real_esrgan", "swinir"):
-        raise HTTPException(400, detail="method must be real_esrgan or swinir")
-    if scale not in (2, 4):
+    if method not in ALLOWED_METHODS:
+        raise HTTPException(400, detail=f"method must be one of: {', '.join(ALLOWED_METHODS)}")
+    if method == "background_remove":
+        if scale != 1:
+            raise HTTPException(400, detail="scale must be 1 for background remove")
+    elif scale not in (2, 4):
         raise HTTPException(400, detail="scale must be 2 or 4")
 
     valid: list[tuple[str, UploadFile]] = []
@@ -91,7 +107,14 @@ def upload_jobs(
         raise HTTPException(400, detail="No valid files")
 
     filenames = [v[0] for v in valid]
-    jobs = job_service.create_jobs(db, filenames, scale=scale, method=method)
+    jobs = job_service.create_jobs(
+        db,
+        filenames,
+        scale=scale,
+        method=method,
+        denoise_first=denoise_first.lower() == "true",
+        face_enhance=face_enhance.lower() == "true",
+    )
     storage = get_storage()
     for job, (_, upload_file) in zip(jobs, valid):
         storage.put(job.original_key, upload_file.file)

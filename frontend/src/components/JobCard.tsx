@@ -7,7 +7,8 @@ import { ExpiryCountdown } from "./ExpiryCountdown";
 
 interface JobCardProps {
   job: Job;
-  onCancelled?: () => void;
+  /** Called after cancel; receives updated job so parent can update list immediately */
+  onCancelled?: (updatedJob: Job) => void;
 }
 
 const statusLabels: Record<string, string> = {
@@ -38,8 +39,8 @@ export function JobCard({ job, onCancelled }: JobCardProps) {
     if (cancelling) return;
     setCancelling(true);
     try {
-      await cancelJob(job.id);
-      onCancelled?.();
+      const updated = await cancelJob(job.id);
+      onCancelled?.(updated);
     } catch {
       setCancelling(false);
     }

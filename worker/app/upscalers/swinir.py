@@ -1,11 +1,29 @@
 """
 SwinIR upscaler: runs official SwinIR main_test_swinir.py via subprocess.
 Requires SwinIR repo at SWINIR_DIR (e.g. /app/SwinIR) with model downloaded.
+Streams SwinIR stdout/stderr to worker logs so you see what it's doing.
 """
+import logging
 import os
 import shutil
 import subprocess
+import threading
+import time
 from pathlib import Path
+
+from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+
+def _stream_output(process: subprocess.Popen, prefix: str = "SwinIR") -> None:
+    """Read subprocess stdout line-by-line and log each line."""
+    if process.stdout is None:
+        return
+    for line in process.stdout:
+        line = (line or "").rstrip()
+        if line:
+            logger.info("%s: %s", prefix, line)
 
 SWINIR_DIR = Path(os.environ.get("SWINIR_DIR", "/app/SwinIR"))
 REAL_SR_MODEL = "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth"
@@ -48,17 +66,57 @@ def upscale(
     if tile:
         args.extend(["--tile", str(tile)])
 
-    result = subprocess.run(
+    logger.info(
+        "SwinIR subprocess starting (if it doesn't print progress, the heartbeat is the only status until it finishes)"
+    )
+    process = subprocess.Popen(
         args,
         cwd=str(SWINIR_DIR),
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
-        timeout=600,
+        bufsize=1,
     )
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"SwinIR failed: {result.stderr or result.stdout or 'unknown'}"
-        )
+    reader = threading.Thread(
+        target=_stream_output,
+        args=(process,),
+        kwargs={"prefix": "SwinIR"},
+        daemon=True,
+    )
+    reader.start()
+
+    start = time.monotonic()
+    last_log = start
+    heartbeat_interval = 30  # every 30s when SwinIR doesn't print progress
+
+    try:
+        while process.poll() is None:
+            elapsed = time.monotonic() - start
+            if elapsed > settings.swinir_timeout_seconds:
+                process.kill()
+                process.wait()
+                raise TimeoutError(
+                    f"SwinIR timed out after {settings.swinir_timeout_seconds} seconds"
+                )
+            if time.monotonic() - last_log >= heartbeat_interval:
+                logger.info(
+                    "SwinIR still processing... (%.1f min elapsed)",
+                    elapsed / 60,
+                )
+                last_log = time.monotonic()
+            time.sleep(10)
+
+        reader.join(timeout=2)
+        returncode = process.returncode
+    except TimeoutError:
+        raise
+    except Exception:
+        process.kill()
+        process.wait()
+        raise
+
+    if returncode != 0:
+        raise RuntimeError("SwinIR failed (see SwinIR: ... lines above for details)")
 
     # Output: results/swinir_real_sr_x4/{imgname}_SwinIR.png
     save_dir = SWINIR_DIR / "results" / f"swinir_real_sr_x{run_scale}"

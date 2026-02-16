@@ -20,5 +20,8 @@ class Settings(BaseSettings):
     # GPU: set to 0 (or device id) to use CUDA; None = CPU (slow, minutes per image)
     real_esrgan_gpu_id: int | None = None
 
+    # SwinIR subprocess timeout (seconds). Large images on CPU can take 15–30+ min.
+    swinir_timeout_seconds: int = 9000
+
 
 settings = Settings()

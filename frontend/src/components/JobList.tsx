@@ -14,11 +14,8 @@ const statusLabels: Record<string, string> = {
 
 function JobRow({ job }: { job: Job }) {
   return (
-    <Link
-      href={`/jobs?ids=${job.id}`}
-      className="block rounded-xl bg-white/80 dark:bg-zinc-800/70 border border-white/90 dark:border-zinc-700/80 p-4 shadow-sm hover:shadow-md dark:hover:ring-1 dark:hover:ring-zinc-600 transition-all text-left"
-    >
-      <div className="flex items-center justify-between gap-2">
+    <Link href={`/jobs?ids=${job.id}`} className="block gradient-border text-left transition-shadow">
+      <div className="gradient-border-inner flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="font-medium text-neutral-900 dark:text-zinc-100 truncate">
             {job.original_filename}
@@ -49,11 +46,11 @@ export function JobList() {
 
   if (!hasFetched && jobs.length === 0) {
     return (
-      <section className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-6 shadow-sm max-w-2xl mb-10">
-        <h2 className="text-lg font-semibold text-neutral-800 dark:text-zinc-100 mb-2">
+      <section className="w-full">
+        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
           Recent jobs
         </h2>
-        <p className="text-sm text-neutral-500 dark:text-zinc-400 py-2">
+        <p className="text-neutral-500 dark:text-zinc-400">
           Loading…
         </p>
       </section>
@@ -62,11 +59,11 @@ export function JobList() {
 
   if (jobs.length === 0) {
     return (
-      <section className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-6 shadow-sm max-w-2xl mb-10">
-        <h2 className="text-lg font-semibold text-neutral-800 dark:text-zinc-100 mb-2">
+      <section className="w-full">
+        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
           Recent jobs
         </h2>
-        <p className="text-sm text-neutral-500 dark:text-zinc-400 py-2">
+        <p className="text-neutral-500 dark:text-zinc-400">
           No jobs yet. Upload images to get started.
         </p>
       </section>
@@ -74,11 +71,11 @@ export function JobList() {
   }
 
   return (
-    <section className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-6 shadow-sm max-w-2xl mb-10">
-      <h2 className="text-lg font-semibold text-neutral-800 dark:text-zinc-100 mb-4">
+    <section className="w-full min-h-0 flex flex-col">
+      <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4 shrink-0">
         Recent jobs
       </h2>
-      <ul className="space-y-3">
+      <ul className="space-y-3 min-h-0">
         {jobs.map((job) => (
           <li key={job.id}>
             <JobRow job={job} />

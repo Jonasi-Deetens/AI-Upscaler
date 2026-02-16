@@ -17,6 +17,8 @@ class JobResponse(BaseModel):
     result_url: str | None
     scale: int
     method: str
+    denoise_first: bool = False
+    face_enhance: bool = False
     created_at: datetime
     expires_at: datetime
     started_at: datetime | None

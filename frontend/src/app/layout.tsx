@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -20,10 +20,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geist.className} min-h-screen text-neutral-800 dark:text-zinc-200`}>
         <ThemeProvider>
-          <div className="fixed top-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
-          <div className="relative z-10 min-h-screen">
+          <Navbar />
+          <div className="relative z-10 min-h-screen pt-14">
             {children}
           </div>
         </ThemeProvider>

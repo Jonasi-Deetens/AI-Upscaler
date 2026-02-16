@@ -70,7 +70,7 @@ export default function Home() {
       </section>
 
       {/* Job list */}
-      <section id="recent-jobs" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 scroll-mt-6">
+      <section id="recent-jobs" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Recent jobs.
         </h2>
@@ -80,7 +80,7 @@ export default function Home() {
       </section>
 
       {/* What it does */}
-      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section id="how-it-works" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Better resolution, automatically.
         </h2>
@@ -90,7 +90,7 @@ export default function Home() {
       </section>
 
       {/* Methods */}
-      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section id="methods" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
           Built for different needs.
         </h2>
@@ -126,7 +126,7 @@ export default function Home() {
       </section>
 
       {/* Optional steps */}
-      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section id="workflow" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
           Simple workflow.
         </h2>
@@ -156,7 +156,7 @@ export default function Home() {
       </section>
 
       {/* Limits */}
-      <section className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80">
+      <section id="limits" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
           Limits.
         </h2>
@@ -166,7 +166,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-6xl mx-auto px-5 pb-24 sm:pb-32 border-t border-neutral-200/80 dark:border-zinc-800/80 pt-16 sm:pt-24">
+      <section id="cta" className="max-w-6xl mx-auto px-5 pb-24 sm:pb-32 border-t border-neutral-200/80 dark:border-zinc-800/80 pt-16 sm:pt-24 scroll-mt-24">
         <div className="flex justify-center">
           <Link
             href="/upload"

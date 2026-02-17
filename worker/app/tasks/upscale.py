@@ -39,6 +39,8 @@ def _update_job_status(
     status_detail: str | None = None,
     started_at: datetime | None = None,
     finished_at: datetime | None = None,
+    progress: int | None = None,
+    clear_progress: bool = False,
 ) -> None:
     db = get_db()
     try:
@@ -56,12 +58,17 @@ def _update_job_status(
                 job.started_at = started_at
             if finished_at is not None:
                 job.finished_at = finished_at
+            if clear_progress:
+                job.progress = None
+            elif progress is not None:
+                job.progress = progress
             db.commit()
     finally:
         db.close()
 
 
-# Name must match backend celery_client.TASK_UPSCALE so tasks are received
+# Name must match backend celery_client.TASK_UPSCALE so tasks are received.
+# Task always returns (never re-raises); Celery acks the message so the next job in the queue runs.
 @celery_app.task(name="app.tasks.upscale.upscale_task")
 def upscale_task(job_id: str) -> None:
     logger.info("upscale_task started job_id=%s", job_id)
@@ -71,7 +78,9 @@ def upscale_task(job_id: str) -> None:
         return
 
     now = datetime.utcnow()
-    _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail="Starting…", started_at=now)
+    _update_job_status(
+        job_id, JOB_STATUS_PROCESSING, status_detail="Starting…", started_at=now, progress=5
+    )
     storage = get_storage()
 
     try:
@@ -80,7 +89,9 @@ def upscale_task(job_id: str) -> None:
             input_path = tmp / "input"
             output_path = tmp / "output.png"
 
-            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail="Downloading image…")
+            _update_job_status(
+                job_id, JOB_STATUS_PROCESSING, status_detail="Downloading image…", progress=15
+            )
             logger.info("job_id=%s downloading from storage key=%s", job_id, job.original_key)
             storage.get_to_file(job.original_key, input_path)
 
@@ -96,6 +107,7 @@ def upscale_task(job_id: str) -> None:
                             JOB_STATUS_FAILED,
                             error_message=f"Image exceeds {settings.max_megapixels} megapixels",
                             finished_at=datetime.utcnow(),
+                            clear_progress=True,
                         )
                         return
             except Exception:
@@ -109,6 +121,7 @@ def upscale_task(job_id: str) -> None:
                         JOB_STATUS_FAILED,
                         error_message="SwinIR is not available in this deployment (repo not found). Use Standard (Real-ESRGAN) or rebuild the worker image with SwinIR.",
                         finished_at=datetime.utcnow(),
+                        clear_progress=True,
                     )
                     logger.warning("job_id=%s SwinIR requested but repo not found at %s", job_id, swinir_dir)
                     return
@@ -127,7 +140,7 @@ def upscale_task(job_id: str) -> None:
                 detail = "Running Background remove…"
             else:
                 detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
-            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail)
+            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail, progress=25)
             logger.info(
                 "job_id=%s running pipeline method=%s scale=%s denoise=%s face_enhance=%s",
                 job_id, job.method, job.scale,
@@ -141,10 +154,13 @@ def upscale_task(job_id: str) -> None:
                     JOB_STATUS_FAILED,
                     error_message=f"Unknown method: {job.method}",
                     finished_at=datetime.utcnow(),
+                    clear_progress=True,
                 )
                 return
 
+            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail, progress=50)
             pipeline_run(job, input_path, output_path)
+            _update_job_status(job_id, JOB_STATUS_PROCESSING, progress=75)
 
             # If user cancelled while we were processing, don't upload result
             job_after = _get_job(job_id)
@@ -152,7 +168,9 @@ def upscale_task(job_id: str) -> None:
                 logger.info("job_id=%s was cancelled, skipping upload", job_id)
                 return
 
-            _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail="Uploading result…")
+            _update_job_status(
+                job_id, JOB_STATUS_PROCESSING, status_detail="Uploading result…", progress=90
+            )
             logger.info("job_id=%s uploading result", job_id)
             result_key = f"results/{job_id}"
             with open(output_path, "rb") as f:
@@ -164,6 +182,7 @@ def upscale_task(job_id: str) -> None:
                 result_key=result_key,
                 status_detail=None,
                 finished_at=datetime.utcnow(),
+                progress=100,
             )
             logger.info("job_id=%s completed", job_id)
 
@@ -186,4 +205,6 @@ def upscale_task(job_id: str) -> None:
             error_message=msg,
             status_detail=None,
             finished_at=datetime.utcnow(),
+            clear_progress=True,
         )
+        # Return normally so Celery acks this task and the next job in the queue runs.

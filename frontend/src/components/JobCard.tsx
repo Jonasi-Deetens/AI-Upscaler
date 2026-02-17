@@ -117,6 +117,17 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
                 {job.finished_at && <>Finished {formatTime(job.finished_at)}</>}
               </p>
             )}
+            {job.status === "processing" &&
+              job.progress != null &&
+              job.progress >= 0 &&
+              job.progress <= 100 && (
+                <div className="mt-2 w-full max-w-xs h-1.5 rounded-full bg-neutral-200 dark:bg-zinc-700 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-violet-500 dark:bg-violet-400 transition-all duration-300"
+                    style={{ width: `${job.progress}%` }}
+                  />
+                </div>
+              )}
             {job.status_detail && (
               <p className="text-sm text-neutral-600 dark:text-zinc-300 mt-0.5">
                 {job.status_detail}

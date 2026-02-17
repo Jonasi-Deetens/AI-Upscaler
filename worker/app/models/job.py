@@ -27,3 +27,4 @@ class Job(Base):
     finished_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
     status_detail = Column(String(256), nullable=True)
+    progress = Column(Integer, nullable=True)  # 0-100 when processing

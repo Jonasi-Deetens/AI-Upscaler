@@ -1,6 +1,6 @@
 import logging
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 from io import BytesIO
@@ -13,7 +13,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.rate_limit import check_upload_rate_limit
+from app.core.rate_limit import check_upload_rate_limit, check_download_rate_limit
 from app.core.storage import get_storage
 from app.models.job import JOB_STATUS_COMPLETED
 from app.core.celery_client import celery_app, enqueue_upscale
@@ -50,6 +50,7 @@ def _job_to_response(request: Request, job) -> JobResponse:
         finished_at=getattr(job, "finished_at", None),
         error_message=job.error_message,
         status_detail=getattr(job, "status_detail", None),
+        progress=getattr(job, "progress", None),
     )
 
 
@@ -144,17 +145,19 @@ def upload_jobs(
 
 @router.get("/batch-download")
 def batch_download(
+    request: Request,
     ids: str,
     db: Session = Depends(get_db),
 ) -> Response:
     """Stream a ZIP of all completed, non-expired job results."""
+    check_download_rate_limit(request)
     import zipfile
 
     if not ids or not ids.strip():
         raise HTTPException(400, detail="ids required (comma-separated job IDs)")
     job_ids = [UUID(x.strip()) for x in ids.split(",") if x.strip()]
     jobs = job_service.get_jobs_by_ids(db, job_ids)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     to_zip = [
         j for j in jobs
         if j.status == JOB_STATUS_COMPLETED and j.result_key and j.expires_at > now
@@ -214,15 +217,17 @@ def cancel_job_endpoint(
 
 @router.get("/{job_id}/download")
 def download_result(
+    request: Request,
     job_id: UUID,
     db: Session = Depends(get_db),
 ) -> FileResponse:
+    check_download_rate_limit(request)
     job = job_service.get_job_by_id(db, job_id)
     if not job:
         raise HTTPException(404, detail="Job not found")
     if job.status != JOB_STATUS_COMPLETED or not job.result_key:
         raise HTTPException(404, detail="Result not available")
-    if job.expires_at < datetime.utcnow():
+    if job.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
         raise HTTPException(410, detail="Result expired")
     storage = get_storage()
     url_or_path = storage.get_url(job.result_key)

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from sqlalchemy import select, func
@@ -8,9 +8,14 @@ from app.core.config import settings
 from app.models.job import Job, JOB_STATUS_QUEUED
 
 
+def _utcnow_naive() -> datetime:
+    """Current UTC as naive datetime for DB comparison (DB columns are naive)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
 def get_queue_stats(db: Session) -> dict[str, int]:
     """Return counts of jobs in queued and processing (non-expired)."""
-    now = datetime.utcnow()
+    now = _utcnow_naive()
     result = db.execute(
         select(Job.status, func.count(Job.id))
         .where(Job.expires_at > now, Job.status.in_(["queued", "processing"]))
@@ -37,7 +42,7 @@ def get_admin_stats(db: Session) -> dict[str, int]:
 
 def get_recent_jobs(db: Session, limit: int = 50) -> list[Job]:
     """Return recent jobs (not expired), newest first."""
-    now = datetime.utcnow()
+    now = _utcnow_naive()
     result = db.execute(
         select(Job)
         .where(Job.expires_at > now)
@@ -55,7 +60,7 @@ def create_jobs(
     denoise_first: bool = False,
     face_enhance: bool = False,
 ) -> list[Job]:
-    expires_at = datetime.utcnow() + timedelta(minutes=settings.job_expiry_minutes)
+    expires_at = _utcnow_naive() + timedelta(minutes=settings.job_expiry_minutes)
     jobs = []
     for filename in filenames:
         job = Job(
@@ -97,7 +102,7 @@ def cancel_job(db: Session, job_id: UUID) -> Job | None:
     job = get_job_by_id(db, job_id)
     if not job or job.status not in ("queued", "processing"):
         return None
-    now = datetime.utcnow()
+    now = _utcnow_naive()
     job.status = "cancelled"
     job.error_message = "Cancelled by user"
     job.status_detail = None

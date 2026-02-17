@@ -65,6 +65,9 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 The first time you bring up the dev stack, the frontend container runs `npm ci` to fill the `node_modules` volume. After you add or change dependencies (e.g. `npm install next-themes` on the host), restart the frontend so the entrypoint runs `npm ci` again: `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build frontend`. If the module-not-found persists, remove the volume and recreate: `docker compose -f docker-compose.yml -f docker-compose.dev.yml down && docker volume rm ai-upscaler_frontend_node_modules 2>/dev/null; docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`
 
+**Why “SwinIR is not available (repo not found)”?**  
+In **development mode**, `docker-compose.dev.yml` mounts `./worker` over `/app` in the worker container. That hides the SwinIR repo that was cloned into `/app/SwinIR` when the image was built, so the **Detailed (SwinIR)** method is unavailable. Use **Standard (Real-ESRGAN)** for upscaling in dev, or run without the dev override (`docker compose up`) if you need SwinIR. To use SwinIR in dev, clone the repo on your host and add a volume in `docker-compose.dev.yml`: e.g. `./SwinIR:/app/SwinIR` after cloning `https://github.com/JingyunLiang/SwinIR` and downloading the real_sr x4 model into `SwinIR/model_zoo/swinir/`.
+
 ---
 
 ## From upload to download: what happens and which files do it
@@ -254,16 +257,20 @@ Response: `UploadResponse(job_ids=[...])` is returned to the frontend; the uploa
 | `MAX_FILES_PER_BATCH` | Max files per upload (default 10). |
 | `MAX_MB_PER_FILE` | Max size per file in MB (default 50). |
 | `MAX_MEGAPIXELS` | Max megapixels per image (default 16). |
+| `ADMIN_API_KEY` | Optional. If set, `/api/admin/stats` requires this key (header `X-Admin-Key` or query `?key=`). |
+
+**Rate limits** (per client IP): uploads 10/min; downloads (single + batch) 30/min. Configure in `backend/app/core/rate_limit.py` if needed.
 
 ---
 
-## Optional: MinIO (S3-compatible storage)
+## Optional: S3 / MinIO storage
 
-```bash
-docker compose --profile with-minio up
-```
+Backend and worker support S3-compatible storage (e.g. MinIO, AWS S3, Cloudflare R2).
 
-Use when you want S3-compatible storage; backend/worker would need S3 implementation and `USE_LOCAL_STORAGE=false` (not wired in this repo yet).
+1. Set `USE_LOCAL_STORAGE=false` and configure S3 env vars (see `.env.example`): `S3_BUCKET`, `S3_REGION`, and optionally `S3_ENDPOINT_URL`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`.
+2. With MinIO: `docker compose --profile with-minio up` to run MinIO; point backend/worker at it via `S3_ENDPOINT_URL` and the same bucket/path semantics.
+
+Upload, download, original, thumbnail, and batch-download all use the same storage backend.
 
 ---
 

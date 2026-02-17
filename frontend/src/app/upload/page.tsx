@@ -150,7 +150,7 @@ export default function UploadPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-5 py-12">
         <Link
           href="/"
           className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"

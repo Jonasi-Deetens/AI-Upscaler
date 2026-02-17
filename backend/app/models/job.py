@@ -1,9 +1,14 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Boolean, String, Integer, DateTime, Text, Index, Column
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
+
+
+def _utcnow_naive() -> datetime:
+    """Current UTC as naive datetime for DB (columns are naive)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 JOB_STATUS_QUEUED = "queued"
 JOB_STATUS_PROCESSING = "processing"
@@ -33,10 +38,11 @@ class Job(Base):
     method = Column(String(32), nullable=False)
     denoise_first = Column(Boolean, nullable=False, default=False)
     face_enhance = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=_utcnow_naive)
     expires_at = Column(DateTime, nullable=False)
     started_at = Column(DateTime, nullable=True)
     finished_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
     status_detail = Column(String(256), nullable=True)
     celery_task_id = Column(String(255), nullable=True)
+    progress = Column(Integer, nullable=True)  # 0-100 when processing

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class JobCreate(BaseModel):
@@ -10,6 +10,8 @@ class JobCreate(BaseModel):
 
 
 class JobResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     status: str
     original_filename: str
@@ -27,9 +29,7 @@ class JobResponse(BaseModel):
     finished_at: datetime | None
     error_message: str | None
     status_detail: str | None
-
-    class Config:
-        from_attributes = True
+    progress: int | None = None  # 0-100 when processing
 
 
 class UploadResponse(BaseModel):

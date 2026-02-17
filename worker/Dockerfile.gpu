@@ -23,14 +23,20 @@ RUN git clone --depth 1 https://github.com/JingyunLiang/SwinIR.git /app/SwinIR \
     && mkdir -p /app/SwinIR/model_zoo/swinir \
     && (cd /app/SwinIR/model_zoo/swinir && wget -q https://github.com/JingyunLiang/SwinIR/releases/download/v0.0/003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth)
 
+# Entrypoint lives outside /app so bind-mounting ./worker:/app in dev does not hide it
+COPY entrypoint.sh /worker-entrypoint.sh
+RUN sed -i 's/\r$//' /worker-entrypoint.sh && chmod +x /worker-entrypoint.sh
+
 COPY . .
 
 RUN adduser --disabled-password --gecos "" --uid 1000 celery \
-    && chown -R celery:celery /app
+    && chown -R celery:celery /app \
+    && chown celery:celery /worker-entrypoint.sh
 
 USER celery
 
 ENV SWINIR_DIR=/app/SwinIR
 # Use first GPU. Set REAL_ESRGAN_GPU_ID in env to override.
 ENV REAL_ESRGAN_GPU_ID=0
-CMD ["celery", "-A", "app.celery_app", "worker", "-B", "--loglevel=info", "--concurrency=1"]
+ENTRYPOINT ["/worker-entrypoint.sh"]
+CMD []

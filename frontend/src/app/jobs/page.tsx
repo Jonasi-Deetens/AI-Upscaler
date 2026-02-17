@@ -3,6 +3,7 @@
 import { Suspense, useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { JobCard } from "@/components/JobCard";
 import { usePollJobs } from "@/hooks/usePollJobs";
 import { getBatchDownloadUrl, getQueueStats } from "@/lib/api";
@@ -122,16 +123,17 @@ function JobsContent() {
         ) : fetchError ? (
           <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-4">
             <p className="text-rose-700 dark:text-rose-300 mb-3">{fetchError}</p>
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               onClick={() => {
                 setFetchError(null);
                 refetch();
               }}
-              className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
             >
               Retry
-            </button>
+            </Button>
           </div>
         ) : !hasFetched && jobs.length === 0 ? (
           <ul className="space-y-4" aria-busy="true" aria-label="Loading jobs">
@@ -151,13 +153,11 @@ function JobsContent() {
           <>
             {showBatchDownload && (
               <div className="mb-4">
-                <a
-                  href={getBatchDownloadUrl(completedIds)}
-                  download
-                  className="gradient-ai inline-flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                >
-                  Download all ({completedIds.length} files)
-                </a>
+                <Button asChild variant="cta" size="md" className="rounded-xl">
+                  <a href={getBatchDownloadUrl(completedIds)} download="upscaled_batch.zip">
+                    Download all as ZIP ({completedIds.length} images)
+                  </a>
+                </Button>
               </div>
             )}
             <ul className="space-y-4" aria-live="polite" aria-label="Job list">

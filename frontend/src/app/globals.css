@@ -105,25 +105,30 @@ html.dark body main {
   background-clip: text;
 }
 
-/* Secondary AI button: gradient border + gradient text */
+/* Secondary button: gradient border, surface-aligned inner bg, gradient text */
 .btn-ai-secondary {
   position: relative;
   background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #f97316 100%);
   border-radius: 9999px;
   padding: 1px;
-  transition: box-shadow 0.2s;
 }
 .btn-ai-secondary-inner {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background: #fbfbfd;
-  padding: 0.875rem 1.5rem;
+  border-radius: inherit;
+  background: rgb(250 250 250);
   font-weight: 500;
+  transition: background 0.2s ease;
+}
+.btn-ai-secondary:hover:not(:disabled) .btn-ai-secondary-inner {
+  background: rgb(245 245 245);
 }
 .dark .btn-ai-secondary-inner {
-  background: #000;
+  background: rgb(39 39 42);
+}
+.dark .btn-ai-secondary:hover:not(:disabled) .btn-ai-secondary-inner {
+  background: rgb(63 63 70);
 }
 .btn-ai-secondary .btn-ai-secondary-inner span {
   background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
@@ -137,9 +142,17 @@ html.dark body main {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.btn-ai-secondary:hover {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(217, 70, 239, 0.15);
+/* Secondary: gradient border can’t be “thicker” with CSS border, so inset ring in gradient color (fuchsia) */
+.btn-hover-border-secondary {
+  transition: box-shadow 0.2s ease;
 }
+.btn-hover-border-secondary:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 2px rgb(217 70 239);
+}
+.dark .btn-hover-border-secondary:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 2px rgb(217 70 239);
+}
+
 .btn-ai-secondary:active {
   transform: scale(0.98);
 }
@@ -163,11 +176,11 @@ html.dark body main {
 .dark .gradient-border-inner {
   background: rgb(39 39 42);
 }
-.gradient-border:hover {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25), 0 0 40px rgba(217, 70, 239, 0.15);
+.gradient-hover:hover {
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.25), 0 0 20px rgba(217, 70, 239, 0.15);
 }
-.dark .gradient-border:hover {
-  box-shadow: 0 0 24px rgba(139, 92, 246, 0.35), 0 0 48px rgba(217, 70, 239, 0.2);
+.dark .gradient-hover:hover {
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.35), 0 0 28px rgba(217, 70, 239, 0.2);
 }
 
 /* Bouncing arrow for scroll cue */

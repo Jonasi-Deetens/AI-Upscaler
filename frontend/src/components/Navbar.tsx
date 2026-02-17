@@ -21,11 +21,11 @@ export function Navbar() {
 
   return (
     <header
-      className="fixed left-0 right-0 top-0 z-40 border-b border-neutral-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md"
+      className="fixed left-0 right-0 top-0 z-40 h-14 border-b border-neutral-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md"
       role="banner"
     >
       <nav
-        className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3"
+        className="mx-auto flex h-full max-w-6xl items-center justify-between gap-4 px-5"
         aria-label="Main"
       >
         <Link

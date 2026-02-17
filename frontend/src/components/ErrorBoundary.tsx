@@ -1,6 +1,7 @@
 "use client";
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Button } from "@/components/ui/Button";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -31,13 +32,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <p className="mb-4 text-center text-neutral-700 dark:text-zinc-300">
             Something went wrong.
           </p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-medium text-white hover:bg-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-          >
+          <Button variant="cta" size="md" onClick={() => window.location.reload()}>
             Reload
-          </button>
+          </Button>
         </div>
       );
     }

@@ -17,6 +17,6 @@ def check_upload_rate_limit(request: Request) -> None:
     if len(_upload_times[key]) >= UPLOADS_PER_MINUTE:
         raise HTTPException(
             status_code=429,
-            detail=f"Too many uploads. Max {UPLOADS_PER_MINUTE} per minute.",
+            detail="Too many uploads. Try again in a few minutes.",
         )
     _upload_times[key].append(now)

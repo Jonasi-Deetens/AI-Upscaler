@@ -17,8 +17,10 @@ export function useActiveSection(): SectionId | null {
   const [activeId, setActiveId] = useState<SectionId | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (cancelled) return;
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const id = entry.target.id as SectionId;
@@ -34,12 +36,20 @@ export function useActiveSection(): SectionId | null {
       }
     );
 
-    for (const id of SECTION_IDS) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    }
+    const setup = () => {
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      }
+    };
 
-    return () => observer.disconnect();
+    // Defer so home page sections are in the DOM (layout mounts before page content)
+    const t = setTimeout(setup, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+      observer.disconnect();
+    };
   }, []);
 
   return activeId;

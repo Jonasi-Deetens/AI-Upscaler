@@ -82,3 +82,8 @@ data/
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
+# Worker model weights (download via script; do not commit)
+worker/weights/
+worker/gfpgan/weights/
+*.pth

@@ -57,7 +57,7 @@ export function BeforeAfterSlider({
   return (
     <div
       ref={containerRef}
-      className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl gradient-border hover:!shadow-none ${className}`}
+      className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl gradient-border shadow-md dark:shadow-white/10  ${className}`}
       onPointerMove={onPointerMove}
       onPointerLeave={() => {}}
     >
@@ -102,12 +102,12 @@ export function BeforeAfterSlider({
               setPosition((p) => Math.min(100, p + step));
           }}
         >
-          <div className="absolute left-1/2 top-1/2 h-12 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white dark:bg-zinc-900 shadow-lg border border-neutral-200 dark:border-zinc-600 flex items-center justify-center">
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 bg-white/90 dark:bg-white/20 shadow-sm z-0" />
+          <div className="absolute left-1/2 top-1/2 h-12 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white dark:bg-zinc-900 shadow-lg border border-neutral-200 dark:border-zinc-600 flex items-center justify-center z-10">
             <span className="text-neutral-400 dark:text-zinc-500 text-xs font-medium">
               ⟷
             </span>
           </div>
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 bg-white/90 dark:bg-white/20 shadow-sm" />
         </div>
         {/* Labels */}
         <span 

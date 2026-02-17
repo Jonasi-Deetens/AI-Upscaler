@@ -1,12 +1,43 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 import { FileDropzone } from "@/components/FileDropzone";
 import { RadioGroup } from "@/components/ui/RadioGroup";
-import { uploadJobsWithProgress } from "@/lib/api";
+import { Toggle } from "@/components/ui/Toggle";
+import { uploadJobsWithProgress, getQueueStats, isApiError, type ApiError } from "@/lib/api";
 import type { UpscaleMethod } from "@/lib/types";
+
+function uploadErrorMessage(err: unknown): { text: string; requestId?: string } {
+  if (isApiError(err)) {
+    const apiErr = err as ApiError;
+    if (apiErr.status === 429) {
+      return { text: "Rate limited. Try again in a few minutes." };
+    }
+    if (apiErr.status === 400) {
+      const m = apiErr.message.toLowerCase();
+      if (m.includes("too many files") || m.includes("too many uploads")) {
+        return { text: "Too many files. Please upload fewer at once." };
+      }
+      if (m.includes("exceeds") || m.includes("mb") || m.includes("megapixel")) {
+        return { text: "A file is too large. Check size and megapixel limits." };
+      }
+      return { text: apiErr.message };
+    }
+    if (apiErr.status >= 500) {
+      return {
+        text: "Something went wrong. Please try again.",
+        requestId: apiErr.requestId,
+      };
+    }
+    return { text: apiErr.message, requestId: apiErr.requestId };
+  }
+  return {
+    text: err instanceof Error ? err.message : "Upload failed",
+  };
+}
 
 type PresetId = "photo" | "anime" | "document" | "custom";
 
@@ -48,7 +79,18 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorRequestId, setErrorRequestId] = useState<string | null>(null);
+  const [queueStats, setQueueStats] = useState({ queued: 0, processing: 0 });
   const submittingRef = useRef(false);
+
+  useEffect(() => {
+    const fetchStats = () => {
+      getQueueStats().then(setQueueStats).catch(() => {});
+    };
+    fetchStats();
+    const t = setInterval(fetchStats, 12000);
+    return () => clearInterval(t);
+  }, []);
 
   const applyPreset = useCallback((id: PresetId) => {
     setPreset(id);
@@ -78,6 +120,7 @@ export default function UploadPage() {
       return;
     }
     setError(null);
+    setErrorRequestId(null);
     submittingRef.current = true;
     setLoading(true);
     setUploadProgress(0);
@@ -95,7 +138,9 @@ export default function UploadPage() {
       setUploadProgress(100);
       router.push(`/jobs?ids=${job_ids.join(",")}&justUploaded=1`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
+      const { text, requestId } = uploadErrorMessage(err);
+      setError(text);
+      setErrorRequestId(requestId ?? null);
       submittingRef.current = false;
     } finally {
       setLoading(false);
@@ -115,30 +160,24 @@ export default function UploadPage() {
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
           Upload images
         </h1>
+        {(queueStats.queued > 0 || queueStats.processing > 0) && (
+          <p className="mb-4 text-sm text-neutral-500 dark:text-zinc-400">
+            {queueStats.queued} in queue, {queueStats.processing} processing. Jobs may take a bit when the queue is busy.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <FileDropzone
             onFilesSelected={handleFilesSelected}
             maxFiles={10}
             className="mb-4"
           />
-          <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
-            <p className="text-sm font-medium text-neutral-800 dark:text-zinc-200 mb-3">Preset</p>
-            <div className="flex flex-wrap gap-2">
-              {PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => applyPreset(p.id)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium border ${
-                    preset === p.id
-                      ? "gradient-ai border text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30"
-                      : "border-neutral-200 dark:border-zinc-600 text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-700"
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
+          <div className="">
+            <Toggle
+              label="Preset"
+              options={PRESETS.map((p) => ({ value: p.id, label: p.label }))}
+              value={preset}
+              onChange={(id) => applyPreset(id)}
+            />
           </div>
           {showCustomControls && (
             <>
@@ -199,12 +238,35 @@ export default function UploadPage() {
             </div>
           )}
           {error && (
-            <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
+            <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm">
+              <p className="text-rose-700 dark:text-rose-300">{error}</p>
+              {errorRequestId && (
+                <div className="mt-2 flex items-center gap-2">
+                  <code className="rounded bg-rose-100 dark:bg-rose-900/50 px-2 py-1 text-xs text-rose-800 dark:text-rose-200 font-mono">
+                    {errorRequestId}
+                  </code>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    destructive
+                    onClick={() => {
+                      navigator.clipboard.writeText(errorRequestId);
+                    }}
+                    className="text-xs"
+                  >
+                    Copy request ID
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
-          <button
+          <Button
             type="submit"
+            variant="cta"
+            size="lg"
             disabled={loading || files.length === 0}
-            className="gradient-ai w-full rounded-xl px-4 py-4 font-semibold text-white shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30 hover:shadow-violet-300/50 dark:hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+            className="w-full rounded-xl"
           >
             {loading
               ? uploadProgress != null
@@ -213,7 +275,7 @@ export default function UploadPage() {
               : isUpscale
                 ? "Upload and process"
                 : "Upload and remove background"}
-          </button>
+          </Button>
         </form>
       </div>
     </main>

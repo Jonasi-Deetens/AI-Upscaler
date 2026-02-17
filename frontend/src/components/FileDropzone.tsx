@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { Button } from "@/components/ui/Button";
 import { getImageDimensions, formatFileSize } from "@/lib/imageUtils";
 
 interface FileDropzoneProps {
@@ -188,13 +189,16 @@ export function FileDropzone({
                     : ""}
                 </p>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
+                destructive
                 onClick={() => removeFile(i)}
-                className="shrink-0 text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 font-medium"
+                className="shrink-0"
               >
                 Remove
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

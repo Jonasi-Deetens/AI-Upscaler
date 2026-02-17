@@ -88,7 +88,7 @@ export function JobList() {
     <section className="w-full min-h-0 flex flex-col">
       <ul className="space-y-3 min-h-0">
         {jobs.map((job) => (
-          <li key={job.id}>
+          <li key={job.id} className="gradient-hover rounded-2xl">
             <JobRow job={job} />
           </li>
         ))}

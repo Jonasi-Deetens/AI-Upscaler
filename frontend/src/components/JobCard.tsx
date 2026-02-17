@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import type { Job } from "@/lib/types";
 import { cancelJob, retryJob } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
 import { ExpiryCountdown } from "./ExpiryCountdown";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 
@@ -133,49 +134,29 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
             )}
             {job.status === "completed" && job.result_url && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
-                <a
-                  href={job.result_url}
-                  download
-                  className="gradient-ai inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                >
-                  Download
-                </a>
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                >
-                  <span className="btn-ai-secondary-inner">
-                    <span>{copyDone ? "Copied!" : "Copy link"}</span>
-                  </span>
-                </button>
+                <Button asChild variant="cta" size="sm">
+                  <a href={job.result_url} download>
+                    Download
+                  </a>
+                </Button>
+                <Button variant="secondary" size="sm" onClick={handleCopyLink}>
+                  {copyDone ? "Copied!" : "Copy link"}
+                </Button>
                 <ExpiryCountdown expiresAt={job.expires_at} />
               </div>
             )}
             {canRetry && (
               <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={handleRetry}
-                  disabled={retrying}
-                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                >
-                  <span className="btn-ai-secondary-inner">
-                    <span>{retrying ? "Retrying…" : "Retry"}</span>
-                  </span>
-                </button>
+                <Button variant="secondary" size="sm" onClick={handleRetry} disabled={retrying}>
+                  {retrying ? "Retrying…" : "Retry"}
+                </Button>
               </div>
             )}
             {canCancel && (
               <div className="mt-3">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  disabled={cancelling}
-                  className="rounded-lg border border-neutral-300 dark:border-zinc-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-zinc-300 hover:bg-neutral-100 dark:hover:bg-zinc-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-                >
+                <Button variant="destructive" size="sm" onClick={handleCancel} disabled={cancelling}>
                   {cancelling ? "Cancelling…" : "Cancel job"}
-                </button>
+                </Button>
               </div>
             )}
           </div>

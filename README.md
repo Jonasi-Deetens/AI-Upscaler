@@ -17,15 +17,36 @@ Upscale images with AI using **Real-ESRGAN** or **SwinIR**. Built with Next.js (
 
 ## Quick start
 
-```bash
-cp .env.example .env
-docker compose up --build
-```
+1. **Copy env and download model weights** (weights are not in the repo; run once per clone):
+
+   ```bash
+   cp .env.example .env
+   python worker/scripts/download_weights.py
+   ```
+
+2. **Start the stack:**
+
+   ```bash
+   docker compose up --build
+   ```
 
 - **App**: http://localhost:3000  
 - **API docs**: http://localhost:8000/docs  
 
 Set `NEXT_PUBLIC_API_URL=http://localhost:8000` in `.env` so the browser can call the backend.
+
+### Model weights (new clones)
+
+Model weights (Real-ESRGAN, ESRGAN, GFPGAN, etc.) are **not** in the repo.
+
+- **Docker:** The worker container runs `download_weights.py` on startup, so weights are downloaded automatically the first time you run `docker compose up`. No manual step.
+- **Local / non-Docker:** Run once after clone:
+
+  ```bash
+  python worker/scripts/download_weights.py
+  ```
+
+Weights go into `worker/weights/` and `worker/gfpgan/weights/`. The worker also downloads missing weights on first use for a given method; the script (or Docker entrypoint) avoids that one-time delay when you start the stack.
 
 ---
 

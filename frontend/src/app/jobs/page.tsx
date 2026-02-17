@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { JobCard } from "@/components/JobCard";
 import { usePollJobs } from "@/hooks/usePollJobs";
-import { getBatchDownloadUrl } from "@/lib/api";
+import { getBatchDownloadUrl, getQueueStats } from "@/lib/api";
 import type { Job } from "@/lib/types";
 
 function requestNotificationPermission(): Promise<boolean> {
@@ -81,6 +81,18 @@ function JobsContent() {
   );
   const showBatchDownload = completedIds.length > 1;
 
+  const [queueStats, setQueueStats] = useState({ queued: 0, processing: 0 });
+  useEffect(() => {
+    const fetchStats = () => {
+      getQueueStats().then(setQueueStats).catch(() => {});
+    };
+    fetchStats();
+    const t = setInterval(fetchStats, 12000);
+    return () => clearInterval(t);
+  }, []);
+
+  const showQueueHint = queueStats.queued > 0 || queueStats.processing > 0;
+
   return (
     <main className="min-h-screen">
       <div className="max-w-6xl mx-auto px-4 py-12">
@@ -93,6 +105,11 @@ function JobsContent() {
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
           Job status
         </h1>
+        {showQueueHint && (
+          <p className="mb-4 text-sm text-neutral-500 dark:text-zinc-400">
+            {queueStats.queued} in queue, {queueStats.processing} processing.
+          </p>
+        )}
         {justUploaded && ids.length > 0 && (
           <p className="mb-4 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 px-4 py-3 text-sm">
             Your jobs are processing. We&apos;ll notify you when they&apos;re ready (if you allow notifications).

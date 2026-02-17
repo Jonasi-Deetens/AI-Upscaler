@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     s3_endpoint_url: str | None = None
     s3_access_key: str | None = None
     s3_secret_key: str | None = None
+    s3_region: str = "us-east-1"
 
     max_megapixels: int = 16
     real_esrgan_tile: int = 512

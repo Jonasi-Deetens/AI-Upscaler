@@ -6,7 +6,7 @@ from uuid import UUID
 from io import BytesIO
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 from PIL import Image
 
@@ -134,7 +134,11 @@ def upload_jobs(
         if task_id:
             job.celery_task_id = task_id
     db.commit()
-
+    logger.info(
+        "Upload created %s jobs",
+        len(jobs),
+        extra={"job_id": str(jobs[0].id) if jobs else ""},
+    )
     return UploadResponse(job_ids=[j.id for j in jobs])
 
 
@@ -197,8 +201,14 @@ def cancel_job_endpoint(
         try:
             celery_app.control.revoke(task_id, terminate=True, signal="SIGTERM")
         except Exception as e:
-            logger.warning("revoke task_id=%s failed: %s", task_id, e)
+            logger.warning(
+                "revoke task_id=%s failed: %s",
+                task_id,
+                e,
+                extra={"job_id": str(job_id)},
+            )
     job = job_service.cancel_job(db, job_id)
+    logger.info("Job cancelled", extra={"job_id": str(job_id)})
     return _job_to_response(request, job)
 
 
@@ -215,10 +225,12 @@ def download_result(
     if job.expires_at < datetime.utcnow():
         raise HTTPException(410, detail="Result expired")
     storage = get_storage()
-    path = storage.get_url(job.result_key)
+    url_or_path = storage.get_url(job.result_key)
     base, _ = job.original_filename.rsplit(".", 1) if "." in job.original_filename else (job.original_filename, "")
     download_name = f"{base}_upscaled.png"
-    return FileResponse(path, filename=download_name, media_type="image/png")
+    if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
+        return RedirectResponse(url=url_or_path, status_code=302)
+    return FileResponse(url_or_path, filename=download_name, media_type="image/png")
 
 
 @router.get("/{job_id}/original")
@@ -231,8 +243,10 @@ def serve_original(
     if not job or not job.original_key:
         raise HTTPException(404, detail="Original not available")
     storage = get_storage()
-    path = storage.get_url(job.original_key)
-    return FileResponse(path, filename=job.original_filename)
+    url_or_path = storage.get_url(job.original_key)
+    if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
+        return RedirectResponse(url=url_or_path, status_code=302)
+    return FileResponse(url_or_path, filename=job.original_filename)
 
 
 @router.get("/{job_id}/thumbnail")
@@ -291,7 +305,17 @@ def retry_job_endpoint(
         finally:
             Path(tmp.name).unlink(missing_ok=True)
     enqueue_upscale(new_job.id)
+    logger.info(
+        "Job retry created",
+        extra={"job_id": str(new_job.id)},
+    )
     return _job_to_response(request, new_job)
+
+
+@router.get("/queue-stats")
+def queue_stats(db: Session = Depends(get_db)):
+    """Return counts of queued and processing jobs (for queue hint in UI)."""
+    return job_service.get_queue_stats(db)
 
 
 @router.get("", response_model=list[JobResponse])
@@ -305,10 +329,18 @@ def list_jobs(
         if ids:
             job_ids = [UUID(x.strip()) for x in ids.split(",") if x.strip()]
             jobs = job_service.get_jobs_by_ids(db, job_ids)
-            logger.info("list_jobs by ids count=%s", len(jobs))
+            logger.info(
+                "list_jobs by ids count=%s",
+                len(jobs),
+                extra={"path": request.url.path},
+            )
         else:
             jobs = job_service.get_recent_jobs(db, limit=min(limit, 100))
-            logger.info("list_jobs recent count=%s", len(jobs))
+            logger.info(
+                "list_jobs recent count=%s",
+                len(jobs),
+                extra={"path": request.url.path},
+            )
         return [_job_to_response(request, j) for j in jobs]
     except Exception as e:
         logger.exception("list_jobs failed: %s", e)

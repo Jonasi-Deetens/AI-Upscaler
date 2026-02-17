@@ -1,6 +1,7 @@
 import logging
 import os
 import traceback
+import uuid
 from contextlib import asynccontextmanager
 
 import redis
@@ -12,24 +13,41 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.api import jobs
+from app.api import admin, jobs
 from app.core.config import settings
 from app.core.database import engine
+from app.core.logging_config import configure_structured_logging
+from app.core.request_context import request_id_var
 
-logging.basicConfig(level=logging.INFO)
+configure_structured_logging()
 logger = logging.getLogger(__name__)
 
 
-class RequestLogMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        msg = f"Request: {request.method} {request.url.path}"
-        logger.info(msg)
-        print(msg, flush=True)
-        response = await call_next(request)
-        msg2 = f"Response: {request.method} {request.url.path} -> {response.status_code}"
-        logger.info(msg2)
-        print(msg2, flush=True)
-        return response
+class RequestIdMiddleware(BaseHTTPMiddleware):
+    """Assign request_id to each request; attach to state and context; log request/response."""
+
+    async def dispatch(self, request: Request, call_next):
+        request_id = str(uuid.uuid4())
+        request.state.request_id = request_id
+        token = request_id_var.set(request_id)
+        try:
+            logger.info(
+                "%s %s",
+                request.method,
+                request.url.path,
+                extra={"path": request.url.path},
+            )
+            response = await call_next(request)
+            logger.info(
+                "%s %s -> %s",
+                request.method,
+                request.url.path,
+                response.status_code,
+                extra={"path": request.url.path},
+            )
+            return response
+        finally:
+            request_id_var.reset(token)
 
 
 def run_migrations() -> None:
@@ -62,7 +80,17 @@ def unhandled_exception_handler(request, exc: Exception):
     )
 
 
-app.add_middleware(RequestLogMiddleware)
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none';"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestIdMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -72,6 +100,7 @@ app.add_middleware(
 )
 
 app.include_router(jobs.router)
+app.include_router(admin.router)
 
 
 @app.get("/")

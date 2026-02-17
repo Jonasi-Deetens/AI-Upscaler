@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { ApiBanner } from "@/components/ApiBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -34,7 +35,7 @@ export default function RootLayout({
           <ApiBanner />
           <Navbar />
           <div className="relative z-10 min-h-screen pt-14">
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </div>
         </ThemeProvider>
       </body>

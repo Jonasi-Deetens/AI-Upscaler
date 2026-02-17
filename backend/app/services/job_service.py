@@ -1,11 +1,38 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.job import Job, JOB_STATUS_QUEUED
+
+
+def get_queue_stats(db: Session) -> dict[str, int]:
+    """Return counts of jobs in queued and processing (non-expired)."""
+    now = datetime.utcnow()
+    result = db.execute(
+        select(Job.status, func.count(Job.id))
+        .where(Job.expires_at > now, Job.status.in_(["queued", "processing"]))
+        .group_by(Job.status)
+    )
+    counts = dict(result.all())
+    return {"queued": counts.get("queued", 0), "processing": counts.get("processing", 0)}
+
+
+def get_admin_stats(db: Session) -> dict[str, int]:
+    """Return aggregate job counts by status (all time). For admin endpoint."""
+    result = db.execute(
+        select(Job.status, func.count(Job.id)).group_by(Job.status)
+    )
+    counts = dict(result.all())
+    return {
+        "queued": counts.get("queued", 0),
+        "processing": counts.get("processing", 0),
+        "completed": counts.get("completed", 0),
+        "failed": counts.get("failed", 0),
+        "cancelled": counts.get("cancelled", 0),
+    }
 
 
 def get_recent_jobs(db: Session, limit: int = 50) -> list[Job]:

@@ -1,10 +1,27 @@
 from pathlib import Path
 from typing import BinaryIO
 
+import boto3
+from botocore.config import Config as BotoConfig
+
 from app.config import settings
 
 
-class StorageBackend:
+def _s3_client():
+    """Single place for boto3 S3 client from settings (align with backend env names)."""
+    kwargs = {
+        "region_name": settings.s3_region,
+        "config": BotoConfig(signature_version="s3v4"),
+    }
+    if settings.s3_endpoint_url:
+        kwargs["endpoint_url"] = settings.s3_endpoint_url
+    if settings.s3_access_key and settings.s3_secret_key:
+        kwargs["aws_access_key_id"] = settings.s3_access_key
+        kwargs["aws_secret_access_key"] = settings.s3_secret_key
+    return boto3.client("s3", **kwargs)
+
+
+class LocalStorageBackend:
     def __init__(self) -> None:
         self.base = Path(settings.local_storage_path)
         self.base.mkdir(parents=True, exist_ok=True)
@@ -12,7 +29,7 @@ class StorageBackend:
     def _path(self, key: str) -> Path:
         return self.base / key
 
-    def put(self, key: str, body: BinaryIO) -> None:
+    def put(self, key: str, body: BinaryIO, content_type: str | None = None) -> None:
         path = self._path(key)
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as f:
@@ -25,6 +42,32 @@ class StorageBackend:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(src.read_bytes())
 
+    def delete(self, key: str) -> None:
+        p = self._path(key)
+        if p.exists():
+            p.unlink()
 
-def get_storage() -> StorageBackend:
-    return StorageBackend()
+
+class S3StorageBackend:
+    """S3 (or MinIO) backend for worker: put, get_to_file, delete."""
+
+    def __init__(self) -> None:
+        self._client = _s3_client()
+        self._bucket = settings.s3_bucket
+
+    def put(self, key: str, body: BinaryIO, content_type: str | None = None) -> None:
+        extra = {"ContentType": content_type} if content_type else {}
+        self._client.upload_fileobj(body, self._bucket, key, ExtraArgs=extra)
+
+    def get_to_file(self, key: str, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._client.download_file(self._bucket, key, str(path))
+
+    def delete(self, key: str) -> None:
+        self._client.delete_object(Bucket=self._bucket, Key=key)
+
+
+def get_storage() -> LocalStorageBackend | S3StorageBackend:
+    if settings.use_local_storage:
+        return LocalStorageBackend()
+    return S3StorageBackend()

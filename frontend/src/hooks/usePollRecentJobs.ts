@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { getRecentJobs } from "@/lib/api";
+import { getCachedRecentJobs, setCachedRecentJobs } from "@/lib/recentJobsCache";
 import type { Job } from "@/lib/types";
 
 const DEFAULT_INTERVAL_MS = 2500;
@@ -18,6 +19,7 @@ export function usePollRecentJobs(
   const fetchJobs = useCallback(async () => {
     try {
       const jobs = await getRecentJobs(limit);
+      setCachedRecentJobs(jobs);
       setJobs(jobs);
     } catch {
       // ignore
@@ -25,6 +27,9 @@ export function usePollRecentJobs(
   }, [setJobs, limit]);
 
   useEffect(() => {
+    const cachedJobs = getCachedRecentJobs();
+    if (cachedJobs?.length) setJobs(cachedJobs);
+
     const startPolling = () => {
       if (intervalRef.current) return;
       fetchJobs();

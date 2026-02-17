@@ -21,5 +21,7 @@ class Settings(BaseSettings):
     max_mb_per_file: int = 50
     max_megapixels: int = 16
 
+    admin_api_key: str | None = None
+
 
 settings = Settings()

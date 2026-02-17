@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FileDropzone } from "@/components/FileDropzone";
 import { RadioGroup } from "@/components/ui/RadioGroup";
-import { uploadJobs } from "@/lib/api";
+import { uploadJobsWithProgress } from "@/lib/api";
 import type { UploadOptions, UpscaleMethod } from "@/lib/types";
 
 type PresetId = "photo" | "anime" | "document" | "custom";
@@ -46,6 +46,7 @@ export default function UploadPage() {
   const [denoiseFirst, setDenoiseFirst] = useState(false);
   const [faceEnhance, setFaceEnhance] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const submittingRef = useRef(false);
 
@@ -79,19 +80,26 @@ export default function UploadPage() {
     setError(null);
     submittingRef.current = true;
     setLoading(true);
+    setUploadProgress(0);
     try {
-      const { job_ids } = await uploadJobs(files, {
-        scale: submitScale,
-        method,
-        denoise_first: denoiseFirst,
-        face_enhance: faceEnhance,
-      });
+      const { job_ids } = await uploadJobsWithProgress(
+        files,
+        {
+          scale: submitScale,
+          method,
+          denoise_first: denoiseFirst,
+          face_enhance: faceEnhance,
+        },
+        (percent) => setUploadProgress(percent)
+      );
+      setUploadProgress(100);
       router.push(`/jobs?ids=${job_ids.join(",")}&justUploaded=1`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       submittingRef.current = false;
     } finally {
       setLoading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -182,6 +190,14 @@ export default function UploadPage() {
               </div>
             </>
           )}
+          {uploadProgress != null && (
+            <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-zinc-700 overflow-hidden">
+              <div
+                className="h-full bg-violet-500 dark:bg-violet-600 transition-[width] duration-200"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          )}
           {error && (
             <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>
           )}
@@ -190,7 +206,13 @@ export default function UploadPage() {
             disabled={loading || files.length === 0}
             className="gradient-ai w-full rounded-xl px-4 py-4 font-semibold text-white shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30 hover:shadow-violet-300/50 dark:hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
           >
-            {loading ? "Uploading…" : isUpscale ? "Upload and process" : "Upload and remove background"}
+            {loading
+              ? uploadProgress != null
+                ? `Uploading… ${uploadProgress}%`
+                : "Uploading…"
+              : isUpscale
+                ? "Upload and process"
+                : "Upload and remove background"}
           </button>
         </form>
       </div>

@@ -90,6 +90,7 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
           {job.thumbnail_url && (
             <div className="shrink-0 w-14 h-14 rounded-xl overflow-hidden gradient-border p-0">
               <div className="gradient-border-inner w-full h-full p-0 rounded-[0.65rem] relative min-h-0">
+                {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API URL (thumbnail) */}
                 <img
                   src={job.thumbnail_url}
                   alt=""

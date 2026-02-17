@@ -18,8 +18,10 @@ export function usePollJobs(
   const { onError, onSettled } = options ?? {};
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const visibleRef = useRef(true);
+  const idsKey = ids.join(",");
 
-  const fetchJobs = useCallback(async () => {
+  const fetchJobs = useCallback(
+    async () => {
     if (ids.length === 0) return;
     try {
       const jobs = await getJobs(ids);
@@ -40,7 +42,11 @@ export function usePollJobs(
     } finally {
       onSettled?.();
     }
-  }, [ids.join(","), setJobs, onError, onSettled]);
+  },
+  // idsKey is the stable serialized form of ids; listing ids would recreate callback every render when parent passes new array ref
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  [idsKey, setJobs, onError, onSettled]
+  );
 
   useEffect(() => {
     if (ids.length === 0) return;
@@ -70,7 +76,7 @@ export function usePollJobs(
       document.removeEventListener("visibilitychange", handleVisibility);
       stopPolling();
     };
-  }, [ids.join(","), intervalMs, fetchJobs]);
+  }, [idsKey, ids.length, intervalMs, fetchJobs]);
 
   return { refetch: fetchJobs };
 }

@@ -55,7 +55,7 @@ export function usePollRecentJobs(
       document.removeEventListener("visibilitychange", handleVisibility);
       stopPolling();
     };
-  }, [intervalMs, limit, fetchJobs]);
+  }, [intervalMs, limit, fetchJobs, setJobs]);
 
   return { refetch: fetchJobs };
 }

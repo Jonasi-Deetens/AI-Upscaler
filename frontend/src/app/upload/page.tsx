@@ -6,7 +6,7 @@ import Link from "next/link";
 import { FileDropzone } from "@/components/FileDropzone";
 import { RadioGroup } from "@/components/ui/RadioGroup";
 import { uploadJobsWithProgress } from "@/lib/api";
-import type { UploadOptions, UpscaleMethod } from "@/lib/types";
+import type { UpscaleMethod } from "@/lib/types";
 
 type PresetId = "photo" | "anime" | "document" | "custom";
 

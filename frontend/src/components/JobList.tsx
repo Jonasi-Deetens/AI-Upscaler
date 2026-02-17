@@ -18,6 +18,7 @@ function JobRow({ job }: { job: Job }) {
       <div className="gradient-border-inner flex items-center gap-3">
         {job.thumbnail_url ? (
           <div className="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 dark:bg-zinc-700 relative">
+            {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API URL (thumbnail) */}
             <img
               src={job.thumbnail_url}
               alt=""

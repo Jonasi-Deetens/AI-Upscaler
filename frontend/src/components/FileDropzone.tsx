@@ -87,6 +87,8 @@ export function FileDropzone({
     return () => {
       cancelled = true;
     };
+  // fileKey is derived from previews; listing previews here would re-run when dimensions resolve and cause a loop
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: react to file identity, not preview object refs
   }, [showPreview, fileKey]);
 
   const handleDrop = useCallback(
@@ -169,6 +171,7 @@ export function FileDropzone({
             >
               {showPreview && item.previewUrl ? (
                 <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-neutral-200 dark:bg-zinc-700">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- blob URL from createObjectURL */}
                   <img
                     src={item.previewUrl}
                     alt=""

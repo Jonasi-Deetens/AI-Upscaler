@@ -64,6 +64,7 @@ export function BeforeAfterSlider({
       <div className="gradient-border-inner absolute inset-[1px] overflow-hidden rounded-[calc(1rem-1px)]">
         {/* After (full, underneath) – upscaled result on the right */}
         <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element -- before/after URLs are dynamic (API or blob) */}
           <img
             src={afterSrc}
             alt={afterAlt}
@@ -75,6 +76,7 @@ export function BeforeAfterSlider({
           className="absolute inset-0 z-10"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element -- before/after URLs are dynamic (API or blob) */}
           <img
             src={beforeSrc}
             alt={beforeAlt}

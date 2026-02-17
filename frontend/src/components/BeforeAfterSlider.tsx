@@ -83,7 +83,7 @@ export function BeforeAfterSlider({
         </div>
         {/* Slider line + handle */}
         <div
-          className="absolute top-0 bottom-0 z-20 w-1 -translate-x-1/2 cursor-ew-resize select-none"
+          className="absolute top-0 bottom-0 z-20 w-1 -translate-x-1/2 cursor-ew-resize select-none rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
           style={{ left: `${position}%` }}
           onPointerDown={onPointerDown}
           role="slider"

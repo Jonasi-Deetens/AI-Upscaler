@@ -14,6 +14,14 @@
   }
 }
 
+/* Focus visible rings for keyboard users */
+@layer base {
+  a:focus-visible,
+  button:focus-visible {
+    outline: none;
+  }
+}
+
 /* Light: modern soft base with subtle gradient depth */
 @layer base {
   body {

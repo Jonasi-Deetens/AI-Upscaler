@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState, useRef, useEffect } from "react";
+import { Suspense, useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { JobCard } from "@/components/JobCard";
@@ -19,13 +19,26 @@ function JobsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const idsParam = searchParams.get("ids") ?? "";
+  const justUploaded = searchParams.get("justUploaded") === "1";
   const ids = useMemo(
     () => idsParam.split(",").filter(Boolean),
     [idsParam]
   );
   const [jobs, setJobs] = useState<Job[]>([]);
-  const { refetch } = usePollJobs(ids, setJobs);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
+  const onSettled = useCallback(() => setHasFetched(true), []);
+  const onError = useCallback((msg: string | null) => setFetchError(msg), []);
+  const { refetch } = usePollJobs(ids, setJobs, 2500, { onError, onSettled });
   const prevStatusRef = useRef<Record<string, string>>({});
+
+  const didHandleJustUploaded = useRef(false);
+  useEffect(() => {
+    if (!justUploaded || ids.length === 0 || didHandleJustUploaded.current) return;
+    didHandleJustUploaded.current = true;
+    requestNotificationPermission();
+    router.replace(`/jobs?ids=${ids.join(",")}`, { scroll: false });
+  }, [justUploaded, ids, router]);
 
   useEffect(() => {
     const inProgress = ["queued", "processing"];
@@ -70,20 +83,53 @@ function JobsContent() {
 
   return (
     <main className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-12">
         <Link
           href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8"
+          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"
         >
           ← Back
         </Link>
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
           Job status
         </h1>
+        {justUploaded && ids.length > 0 && (
+          <p className="mb-4 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 px-4 py-3 text-sm">
+            Your jobs are processing. We&apos;ll notify you when they&apos;re ready (if you allow notifications).
+          </p>
+        )}
         {ids.length === 0 ? (
           <p className="text-neutral-600 dark:text-zinc-400">
             No job IDs. Upload images first.
           </p>
+        ) : fetchError ? (
+          <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-4">
+            <p className="text-rose-700 dark:text-rose-300 mb-3">{fetchError}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setFetchError(null);
+                refetch();
+              }}
+              className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+            >
+              Retry
+            </button>
+          </div>
+        ) : !hasFetched && jobs.length === 0 ? (
+          <ul className="space-y-4" aria-busy="true" aria-label="Loading jobs">
+            {ids.map((id) => (
+              <li key={id} className="rounded-2xl border border-neutral-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800/60 p-5 animate-pulse">
+                <div className="flex gap-4">
+                  <div className="h-14 w-14 rounded-xl bg-neutral-200 dark:bg-zinc-700 shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-3/4 rounded bg-neutral-200 dark:bg-zinc-700" />
+                    <div className="h-3 w-1/2 rounded bg-neutral-200 dark:bg-zinc-700" />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : (
           <>
             {showBatchDownload && (
@@ -91,13 +137,13 @@ function JobsContent() {
                 <a
                   href={getBatchDownloadUrl(completedIds)}
                   download
-                  className="gradient-ai inline-flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all"
+                  className="gradient-ai inline-flex items-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   Download all ({completedIds.length} files)
                 </a>
               </div>
             )}
-            <ul className="space-y-4">
+            <ul className="space-y-4" aria-live="polite" aria-label="Job list">
               {jobs.map((job) => (
                 <li key={job.id}>
                   <JobCard
@@ -118,17 +164,22 @@ function JobsContent() {
 function JobsFallback() {
   return (
     <main className="min-h-screen">
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        <Link
-          href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8"
-        >
-          ← Back
-        </Link>
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
-          Job status
-        </h1>
-        <p className="text-neutral-600 dark:text-zinc-400">Loading…</p>
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="h-5 w-24 rounded bg-neutral-200 dark:bg-zinc-700 animate-pulse mb-8" />
+        <div className="h-9 w-48 rounded bg-neutral-200 dark:bg-zinc-700 animate-pulse mb-6" />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl border border-neutral-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800/60 p-5 animate-pulse">
+              <div className="flex gap-4">
+                <div className="h-14 w-14 rounded-xl bg-neutral-200 dark:bg-zinc-700 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-3/4 rounded bg-neutral-200 dark:bg-zinc-700" />
+                  <div className="h-3 w-1/2 rounded bg-neutral-200 dark:bg-zinc-700" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );

@@ -86,7 +86,7 @@ export default function UploadPage() {
         denoise_first: denoiseFirst,
         face_enhance: faceEnhance,
       });
-      router.push(`/jobs?ids=${job_ids.join(",")}`);
+      router.push(`/jobs?ids=${job_ids.join(",")}&justUploaded=1`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
       submittingRef.current = false;
@@ -100,7 +100,7 @@ export default function UploadPage() {
       <div className="max-w-2xl mx-auto px-4 py-12">
         <Link
           href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8"
+          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"
         >
           ← Back
         </Link>
@@ -188,7 +188,7 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={loading || files.length === 0}
-            className="gradient-ai w-full rounded-xl px-4 py-4 font-semibold text-white shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30 hover:shadow-violet-300/50 dark:hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200"
+            className="gradient-ai w-full rounded-xl px-4 py-4 font-semibold text-white shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30 hover:shadow-violet-300/50 dark:hover:shadow-violet-500/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
           >
             {loading ? "Uploading…" : isUpscale ? "Upload and process" : "Upload and remove background"}
           </button>

@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useActiveSection, type SectionId } from "@/hooks/useActiveSection";
 
-const SECTIONS = [
+const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "recent-jobs", label: "Recent jobs" },
   { id: "how-it-works", label: "How it works" },
   { id: "methods", label: "Methods" },
   { id: "workflow", label: "Workflow" },
   { id: "limits", label: "Limits" },
   { id: "cta", label: "Upload" },
-] as const;
+];
 
 export function Navbar() {
   const pathname = usePathname();
+  const activeSection = useActiveSection();
   const isHome = pathname === "/";
 
   return (
@@ -28,7 +30,7 @@ export function Navbar() {
       >
         <Link
           href="/"
-          className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+          className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white hover:text-violet-600 dark:hover:text-violet-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded-md"
         >
           AI Upscaler
         </Link>
@@ -39,7 +41,11 @@ export function Navbar() {
               <li key={id}>
                 <a
                   href={`#${id}`}
-                  className="rounded-full px-3 py-2 text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200 transition-colors"
+                  className={`rounded-full px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 ${
+                    activeSection === id
+                      ? "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300"
+                      : "text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200"
+                  }`}
                 >
                   {label}
                 </a>
@@ -50,7 +56,7 @@ export function Navbar() {
               <li>
                 <Link
                   href="/#recent-jobs"
-                  className="rounded-full px-3 py-2 text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200 transition-colors"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   Recent jobs
                 </Link>
@@ -58,7 +64,7 @@ export function Navbar() {
               <li>
                 <Link
                   href="/upload"
-                  className="rounded-full px-3 py-2 text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200 transition-colors"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-neutral-600 dark:text-zinc-400 hover:bg-neutral-100 dark:hover:bg-zinc-800 hover:text-neutral-900 dark:hover:text-zinc-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   Upload
                 </Link>

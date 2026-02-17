@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { JobList } from "@/components/JobList";
 import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
+
+export const metadata: Metadata = {
+  title: "AI Upscaler — Upscale images with AI",
+  description: "Upscale any image. Clean, fast, no sign-up. Real-ESRGAN, SwinIR, 2× and 4×.",
+};
 
 const HERO_OPTIONS = [
   "2× & 4×",
@@ -40,13 +46,13 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/upload"
-                className="gradient-ai inline-flex items-center justify-center rounded-full text-white px-8 py-4 text-base font-medium hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30"
+                className="gradient-ai inline-flex items-center justify-center rounded-full text-white px-8 py-4 text-base font-medium hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-violet-200/50 dark:shadow-violet-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded-full"
               >
                 Get started
               </Link>
               <Link
                 href="/jobs"
-                className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform"
+                className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded-full"
               >
                 <span className="btn-ai-secondary-inner">
                   <span>View all</span>
@@ -60,7 +66,7 @@ export default function Home() {
         </div>
         <a
           href="#recent-jobs"
-          className="bounce-arrow mx-auto mt-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-neutral-200 dark:border-zinc-600 bg-white/80 dark:bg-zinc-800/80 text-neutral-500 dark:text-zinc-400 hover:border-neutral-300 dark:hover:border-zinc-500 hover:text-neutral-700 dark:hover:text-zinc-300 transition-colors"
+          className="bounce-arrow mx-auto mt-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-neutral-200 dark:border-zinc-600 bg-white/80 dark:bg-zinc-800/80 text-neutral-500 dark:text-zinc-400 hover:border-neutral-300 dark:hover:border-zinc-500 hover:text-neutral-700 dark:hover:text-zinc-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
           aria-label="Scroll to next section"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

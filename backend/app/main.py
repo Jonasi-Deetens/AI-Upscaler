@@ -3,14 +3,18 @@ import os
 import traceback
 from contextlib import asynccontextmanager
 
+import redis
 from alembic import command
 from alembic.config import Config
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api import jobs
+from app.core.config import settings
+from app.core.database import engine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -76,6 +80,7 @@ def root():
         "message": "AI Upscaler API",
         "docs": "/docs",
         "health": "/health",
+        "api_health": "/api/health",
         "jobs": "/api/jobs",
     }
 
@@ -83,3 +88,29 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/health")
+def api_health(request: Request):
+    """Deep health check: DB and Redis. Returns 503 if any dependency is down."""
+    checks: dict[str, str] = {}
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as e:
+        logger.warning("Health check DB failed: %s", e)
+        checks["database"] = "error"
+    try:
+        r = redis.from_url(settings.redis_url)
+        r.ping()
+        checks["redis"] = "ok"
+    except Exception as e:
+        logger.warning("Health check Redis failed: %s", e)
+        checks["redis"] = "error"
+    if any(v == "error" for v in checks.values()):
+        return JSONResponse(
+            status_code=503,
+            content={"status": "degraded", "checks": checks},
+        )
+    return {"status": "ok", "checks": checks}

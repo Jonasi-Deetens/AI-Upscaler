@@ -13,6 +13,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limit import check_upload_rate_limit
 from app.core.storage import get_storage
 from app.models.job import JOB_STATUS_COMPLETED
 from app.core.celery_client import celery_app, enqueue_upscale
@@ -71,6 +72,7 @@ def upload_jobs(
     face_enhance: str = Form("false"),
     db: Session = Depends(get_db),
 ) -> UploadResponse:
+    check_upload_rate_limit(request)
     if len(files) > settings.max_files_per_batch:
         raise HTTPException(
             400,

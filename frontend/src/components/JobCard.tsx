@@ -39,25 +39,30 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
   const [cancelling, setCancelling] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [copyDone, setCopyDone] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const handleCancel = async () => {
     if (cancelling) return;
+    setActionError(null);
     setCancelling(true);
     try {
       const updated = await cancelJob(job.id);
       onCancelled?.(updated);
-    } catch {
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Cancel failed. Try again.");
       setCancelling(false);
     }
   };
 
   const handleRetry = async () => {
     if (retrying) return;
+    setActionError(null);
     setRetrying(true);
     try {
       const newJob = await retryJob(job.id);
       onRetried?.(newJob);
-    } catch {
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Retry failed. Try again.");
       setRetrying(false);
     }
   };
@@ -120,19 +125,24 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
                 {job.error_message}
               </p>
             )}
+            {actionError && (
+              <p className="text-sm text-rose-600 dark:text-rose-400 mt-1">
+                {actionError}
+              </p>
+            )}
             {job.status === "completed" && job.result_url && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <a
                   href={job.result_url}
                   download
-                  className="gradient-ai inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all"
+                  className="gradient-ai inline-flex items-center rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md shadow-violet-200/50 dark:shadow-violet-500/30 hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   Download
                 </a>
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform"
+                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   <span className="btn-ai-secondary-inner">
                     <span>{copyDone ? "Copied!" : "Copy link"}</span>
@@ -147,7 +157,7 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
                   type="button"
                   onClick={handleRetry}
                   disabled={retrying}
-                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform disabled:opacity-50"
+                  className="btn-ai-secondary inline-flex active:scale-[0.98] transition-transform disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   <span className="btn-ai-secondary-inner">
                     <span>{retrying ? "Retrying…" : "Retry"}</span>
@@ -161,7 +171,7 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
                   type="button"
                   onClick={handleCancel}
                   disabled={cancelling}
-                  className="rounded-lg border border-neutral-300 dark:border-zinc-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-zinc-300 hover:bg-neutral-100 dark:hover:bg-zinc-700 disabled:opacity-50"
+                  className="rounded-lg border border-neutral-300 dark:border-zinc-600 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-zinc-300 hover:bg-neutral-100 dark:hover:bg-zinc-700 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
                 >
                   {cancelling ? "Cancelling…" : "Cancel job"}
                 </button>

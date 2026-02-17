@@ -22,7 +22,7 @@ export function BeforeAfterSlider({
   afterAlt = "After upscale",
   className = "",
 }: BeforeAfterSliderProps) {
-  const [position, setPosition] = useState(50);
+  const [position, setPosition] = useState(20);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMove = useCallback(
@@ -57,11 +57,11 @@ export function BeforeAfterSlider({
   return (
     <div
       ref={containerRef}
-      className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl gradient-border shadow-md dark:shadow-white/10  ${className}`}
+      className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg dark:shadow-white/10 ${className}`}
       onPointerMove={onPointerMove}
       onPointerLeave={() => {}}
     >
-      <div className="gradient-border-inner absolute inset-[1px] overflow-hidden rounded-[calc(1rem-1px)]">
+      <div className="absolute inset-0 overflow-hidden rounded-2xl">
         {/* After (full, underneath) – upscaled result on the right */}
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element -- before/after URLs are dynamic (API or blob) */}

@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* Hero: fill viewport below navbar (navbar is h-14 / 3.5rem) */}
-      <section className="section-hero min-h-[calc(100vh-3.5rem)] flex flex-col gap-4 px-5 py-12 lg:py-16 max-w-6xl mx-auto">
+      <section className="min-h-[calc(100vh-3.5rem)] flex flex-col gap-4 px-5 py-12 lg:py-16 max-w-6xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-10 lg:gap-16 flex-1 min-h-0">
           <div className="flex flex-col justify-center lg:max-w-md">
             <span className="inline-flex w-fit items-center rounded-full bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 dark:from-violet-400/15 dark:to-fuchsia-400/15 border border-violet-200/60 dark:border-violet-500/30 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 mb-5">
@@ -67,54 +67,50 @@ export default function Home() {
       </section>
 
       {/* Job list */}
-      <section id="recent-jobs" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 scroll-mt-24">
-        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
-          Recent jobs.
+      <section id="recent-jobs" className="section-top-bar max-w-6xl mx-auto px-5 py-16 sm:py-24 scroll-mt-24">
+        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-1">
+          Recent jobs
         </h2>
+        <p className="text-neutral-500 dark:text-zinc-400 text-sm mb-6">
+          Jobs you’ve started from this device appear here. Open the link on another device to see the same list.
+        </p>
         <div className="flex-1 lg:max-w-[380px] lg:min-w-[300px] min-h-0 flex flex-col">
           <JobList />
         </div>
       </section>
 
       {/* What it does */}
-      <section id="how-it-works" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
-        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
-          Better resolution, automatically.
-        </h2>
-        <p className="text-lg text-neutral-500 dark:text-zinc-400 leading-relaxed">
-          Upload a photo or illustration. Choose 2× or 4× scale and the method that fits—general purpose, anime, or extra detail. You get a higher-resolution image in minutes, with no watermark and no account required.
-        </p>
+      <section id="how-it-works" className="section-stripe max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
+            Better resolution, automatically
+          </h2>
+          <p className="text-lg text-neutral-500 dark:text-zinc-400 leading-relaxed">
+            Upload a photo or illustration. Choose 2× or 4× scale and the method that fits—general purpose, anime, or extra detail. You get a higher-resolution image in minutes, with no watermark and no account required.
+          </p>
+        </div>
       </section>
 
       {/* Methods */}
       <section id="methods" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
-          Built for different needs.
+          Built for different needs
         </h2>
-        <ul className="space-y-6">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
-            {
-              title: "Standard",
-              desc: "Best for photos and mixed content. Real-ESRGAN, tuned for real-world images.",
-            },
-            {
-              title: "Anime",
-              desc: "Optimized for anime and illustrations. Same engine, different training.",
-            },
-            {
-              title: "Detailed",
-              desc: "SwinIR for sharper fine detail when you need maximum clarity.",
-            },
-            {
-              title: "Remove background",
-              desc: "One-click background removal. Output is a transparent PNG.",
-            },
+            { title: "Standard", desc: "Best for photos and mixed content. Real-ESRGAN, tuned for real-world images." },
+            { title: "Anime", desc: "Optimized for anime and illustrations. Same engine, different training." },
+            { title: "Detailed", desc: "SwinIR for sharper fine detail when you need maximum clarity." },
+            { title: "Remove background", desc: "One-click background removal. Output is a transparent PNG." },
           ].map((item) => (
-            <li key={item.title} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
-              <span className="text-base font-medium text-neutral-900 dark:text-white shrink-0 sm:w-36">
+            <li
+              key={item.title}
+              className="flex flex-col rounded-xl border border-neutral-200/80 dark:border-zinc-700/80 bg-white/80 dark:bg-zinc-800/40 px-5 py-4 backdrop-blur-sm"
+            >
+              <span className="text-base font-medium text-neutral-900 dark:text-white mb-1">
                 {item.title}
               </span>
-              <span className="text-neutral-500 dark:text-zinc-400 text-sm sm:text-base leading-relaxed">
+              <span className="text-neutral-500 dark:text-zinc-400 text-sm leading-relaxed">
                 {item.desc}
               </span>
             </li>
@@ -122,10 +118,10 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* Optional steps */}
-      <section id="workflow" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
+      {/* Workflow */}
+      <section id="workflow" className="section-top-bar max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
         <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-8">
-          Simple workflow.
+          Simple workflow
         </h2>
         <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -153,18 +149,26 @@ export default function Home() {
       </section>
 
       {/* Limits */}
-      <section id="limits" className="max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
-        <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
-          Limits.
-        </h2>
-        <p className="text-neutral-500 dark:text-zinc-400 leading-relaxed">
-          Max 10 files per batch, 50 MB per file, 16 megapixels per image. Results are available for 1 hour after completion.
-        </p>
+      <section id="limits" className="section-stripe max-w-6xl mx-auto px-5 py-16 sm:py-24 border-t border-neutral-200/80 dark:border-zinc-800/80 scroll-mt-24">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-3">
+            Limits
+          </h2>
+          <p className="text-neutral-500 dark:text-zinc-400 leading-relaxed mb-2">
+            Max 10 files per batch, 50 MB per file, 16 megapixels per image. Results are available for 1 hour after completion.
+          </p>
+          <p className="text-sm text-neutral-400 dark:text-zinc-500">
+            No account needed. Your images are processed on our servers and can be downloaded via the link until they expire.
+          </p>
+        </div>
       </section>
 
       {/* CTA */}
       <section id="cta" className="max-w-6xl mx-auto px-5 pb-24 sm:pb-32 border-t border-neutral-200/80 dark:border-zinc-800/80 pt-16 sm:pt-24 scroll-mt-24">
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <p className="text-lg text-neutral-500 dark:text-zinc-400 max-w-md">
+            Ready to upscale? Upload your images and pick a method.
+          </p>
           <Button asChild variant="cta" size="lg">
             <Link href="/upload">Upload images</Link>
           </Button>

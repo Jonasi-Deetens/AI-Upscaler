@@ -61,9 +61,6 @@ export function JobList() {
   if (!hasFetched && jobs.length === 0) {
     return (
       <section className="w-full">
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
-          Recent jobs
-        </h2>
         <p className="text-neutral-500 dark:text-zinc-400">
           Loading…
         </p>
@@ -74,9 +71,6 @@ export function JobList() {
   if (jobs.length === 0) {
     return (
       <section className="w-full">
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white mb-4">
-          Recent jobs
-        </h2>
         <p className="text-neutral-500 dark:text-zinc-400">
           No jobs yet. Upload images to get started.
         </p>

@@ -5,15 +5,15 @@ Single responsibility: compose steps; no DB or status updates.
 from pathlib import Path
 
 import shutil
-from pathlib import Path
 
 from app.config import settings
-from app.processors import background_remove, convert, denoise, face_enhance
+from app.processors import background_remove, convert, denoise, face_enhance, restore
 from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
 METHOD_CONVERT = "convert"
 METHOD_COMPRESS = "compress"
+METHOD_RESTORE = "restore"
 UPSCALE_METHODS = ("real_esrgan", "swinir", "esrgan", "real_esrgan_anime")
 
 
@@ -38,6 +38,9 @@ def run(job, input_path: Path, output_path: Path) -> None:
             target_format=getattr(job, "target_format", "webp"),
             quality=getattr(job, "quality", 85),
         )
+        return
+    if job.method == METHOD_RESTORE:
+        restore.run(input_path, output_path)
         return
 
     current = input_path

@@ -10,6 +10,7 @@ const PAGES: { href: string; label: string }[] = [
   { href: "/remove-bg", label: "Remove BG" },
   { href: "/convert", label: "Convert" },
   { href: "/compress", label: "Compress" },
+  { href: "/restore", label: "Restore" },
   { href: "/jobs", label: "Jobs" },
 ];
 

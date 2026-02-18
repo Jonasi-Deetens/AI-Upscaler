@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -15,5 +15,6 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "remove-bg", href: "/remove-bg", title: "Remove BG", description: "Transparent PNG.", icon: "remove-bg" },
   { id: "convert", href: "/convert", title: "Convert", description: "WebP, PNG, JPEG.", icon: "convert" },
   { id: "compress", href: "/compress", title: "Compress", description: "Smaller files, WebP or JPEG.", icon: "compress" },
+  { id: "restore", href: "/restore", title: "Restore & colorize", description: "Restore and colorize old photos.", icon: "restore" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

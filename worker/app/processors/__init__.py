@@ -1,1 +1,1 @@
-# Image processors: denoise, face_enhance, background_remove, convert
+# Image processors: denoise, face_enhance, background_remove, convert, restore

@@ -130,6 +130,7 @@ def upscale_task(job_id: str) -> None:
                 METHOD_BACKGROUND_REMOVE,
                 METHOD_COMPRESS,
                 METHOD_CONVERT,
+                METHOD_RESTORE,
                 UPSCALE_METHODS,
                 run as pipeline_run,
             )
@@ -142,6 +143,7 @@ def upscale_task(job_id: str) -> None:
                 "background_remove": "Background remove",
                 "convert": "Convert",
                 "compress": "Compress",
+                "restore": "Restore & colorize",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == METHOD_CONVERT:
@@ -150,6 +152,8 @@ def upscale_task(job_id: str) -> None:
                 detail = f"Compressing to {getattr(job, 'target_format', 'webp')}…"
             elif job.method == METHOD_BACKGROUND_REMOVE:
                 detail = "Running Background remove…"
+            elif job.method == METHOD_RESTORE:
+                detail = "Running Restore & colorize…"
             else:
                 detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
             _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail, progress=25)
@@ -164,6 +168,7 @@ def upscale_task(job_id: str) -> None:
                 METHOD_BACKGROUND_REMOVE,
                 METHOD_CONVERT,
                 METHOD_COMPRESS,
+                METHOD_RESTORE,
             ):
                 _update_job_status(
                     job_id,

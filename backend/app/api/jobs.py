@@ -65,6 +65,7 @@ ALLOWED_METHODS = (
     "background_remove",
     "convert",
     "compress",
+    "restore",
 )
 
 CONVERT_TARGET_FORMATS = ("webp", "png", "jpeg")
@@ -87,6 +88,8 @@ def _result_download_name_and_media_type(job) -> tuple[str, str]:
     if job.method == "compress" and getattr(job, "target_format", None):
         ext = job.target_format
         return f"{base}_compressed.{ext}", DOWNLOAD_MEDIA_TYPES.get(ext, "application/octet-stream")
+    if job.method == "restore":
+        return f"{base}_restored.png", "image/png"
     return f"{base}_upscaled.png", "image/png"
 
 
@@ -143,6 +146,9 @@ def upload_jobs(
     elif method == "background_remove":
         if scale != 1:
             raise HTTPException(400, detail="scale must be 1 for background remove")
+    elif method == "restore":
+        if scale != 1:
+            raise HTTPException(400, detail="scale must be 1 for restore")
     elif scale not in (2, 4):
         raise HTTPException(400, detail="scale must be 2 or 4")
 

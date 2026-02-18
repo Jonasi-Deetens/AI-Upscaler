@@ -87,8 +87,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Baked into client bundle at build time so the browser can call the backend.
-        NEXT_PUBLIC_API_URL: http://localhost:8000
+        # Empty = browser uses same-origin /api; Next.js proxies to backend (avoids "Failed to fetch" when host/port differ).
+        NEXT_PUBLIC_API_URL: ""
+        BACKEND_INTERNAL_URL: http://backend:8000
     ports:
       - "3000:3000"
     env_file:

@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
+// Where to proxy /api/* (server-side). Browser uses relative /api when NEXT_PUBLIC_API_URL is empty.
+const BACKEND_PROXY_URL =
+  process.env.BACKEND_INTERNAL_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
+
 const nextConfig: NextConfig = {
   output: "standalone",
+  async rewrites() {
+    return [{ source: "/api/:path*", destination: `${BACKEND_PROXY_URL}/api/:path*` }];
+  },
   async headers() {
     let apiOrigin = "";
     try {

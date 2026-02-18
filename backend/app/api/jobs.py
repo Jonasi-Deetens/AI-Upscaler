@@ -36,6 +36,7 @@ def _job_to_response(request: Request, job) -> JobResponse:
         id=job.id,
         status=job.status,
         original_filename=job.original_filename,
+        original_key=job.original_key or None,
         result_key=job.result_key,
         result_url=result_url,
         original_url=original_url,

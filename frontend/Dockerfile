@@ -9,9 +9,12 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Next.js bakes NEXT_PUBLIC_* into the client bundle at build time (browser uses this to call the backend).
-ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+# NEXT_PUBLIC_API_URL: empty = browser uses same-origin /api (Next.js proxies to backend); set to hit API directly.
+# BACKEND_INTERNAL_URL: where Next.js server proxies /api/* to (e.g. http://backend:8000 in Docker).
+ARG NEXT_PUBLIC_API_URL
+ARG BACKEND_INTERNAL_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

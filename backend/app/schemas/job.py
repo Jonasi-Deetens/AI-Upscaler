@@ -15,6 +15,7 @@ class JobResponse(BaseModel):
     id: UUID
     status: str
     original_filename: str
+    original_key: str | None = None
     result_key: str | None
     result_url: str | None
     original_url: str | None = None

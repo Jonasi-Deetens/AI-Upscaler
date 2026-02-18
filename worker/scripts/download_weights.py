@@ -5,8 +5,11 @@ Download model weights for the upscaler worker. Run once after cloning the repo.
 Uses only the Python standard library so it works without installing worker deps.
 Run from repo root: python worker/scripts/download_weights.py
 Or from worker dir:  python scripts/download_weights.py
+
+Optional: set HF_TOKEN for Hugging Face downloads if you get 401 Unauthorized.
 """
 from pathlib import Path
+import os
 import sys
 import urllib.request
 
@@ -54,28 +57,39 @@ DOWNLOADS = [
 
 
 def download(url: str, path: Path, skip_existing: bool = True) -> bool:
-    """Download url to path. Return True if downloaded, False if skipped."""
+    """Download url to path. Return True if downloaded, False if skipped or failed."""
     path = path.resolve()
     if skip_existing and path.is_file():
         print(f"  skip (exists): {path.name}")
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
     print(f"  download: {path.name} ...", end=" ", flush=True)
+    headers = {"User-Agent": "AI-Upscaler/1.0"}
+    if "huggingface.co" in url:
+        token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "AI-Upscaler/1.0"})
+        req = urllib.request.Request(url, headers=headers)
         with urllib.request.urlopen(req, timeout=120) as resp:
             path.write_bytes(resp.read())
         print("ok")
         return True
     except Exception as e:
         print(f"FAILED: {e}")
-        raise
+        print(f"    (optional: set HF_TOKEN for Hugging Face if 401)")
+        return False
 
 
 def main() -> int:
     print("Downloading worker model weights into worker/weights and worker/gfpgan/weights")
+    ok = 0
     for url, path in DOWNLOADS:
-        download(url, path)
+        if download(url, path):
+            ok += 1
+    if ok == 0 and not any(p.resolve().is_file() for _, p in DOWNLOADS):
+        print("No weights downloaded. Check network or set HF_TOKEN for Hugging Face.")
+        return 1
     print("Done.")
     return 0
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { Job } from "@/lib/types";
-import { cancelJob, retryJob } from "@/lib/api";
+import { cancelJob, retryJob, getDownloadUrl, getOriginalUrl, getThumbnailUrl } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { ExpiryCountdown } from "./ExpiryCountdown";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
@@ -82,18 +82,18 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
 
   const canCancel = (job.status === "queued" || job.status === "processing") && onCancelled;
   const canRetry = job.status === "failed" && onRetried;
-  const showCompare = job.status === "completed" && job.original_url && job.result_url;
+  const showCompare = job.status === "completed" && job.result_key && job.original_key;
 
   return (
     <div className="rounded-2xl gradient-border p-[1px] bg-white/80 dark:bg-zinc-800/70 backdrop-blur-sm shadow-sm hover:shadow-md dark:hover:ring-1 dark:hover:ring-zinc-600 transition-all">
       <div className="gradient-border-inner rounded-2xl p-5">
         <div className="flex items-start gap-4">
-          {job.thumbnail_url && (
+          {job.original_key && (
             <div className="shrink-0 w-14 h-14 rounded-xl overflow-hidden gradient-border p-0">
               <div className="gradient-border-inner w-full h-full p-0 rounded-[0.65rem] relative min-h-0">
                 {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API URL (thumbnail) */}
                 <img
-                  src={job.thumbnail_url}
+                  src={getThumbnailUrl(job.id)}
                   alt=""
                   className="absolute inset-0 size-full object-cover"
                 />
@@ -143,10 +143,10 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
                 {actionError}
               </p>
             )}
-            {job.status === "completed" && job.result_url && (
+            {job.status === "completed" && job.result_key && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <Button asChild variant="cta" size="sm">
-                  <a href={job.result_url} download>
+                  <a href={getDownloadUrl(job.id)} download>
                     Download
                   </a>
                 </Button>
@@ -175,8 +175,8 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
         {showCompare && (
           <div className="mt-4 w-full max-w-sm">
             <BeforeAfterSlider
-              beforeSrc={job.original_url!}
-              afterSrc={job.result_url!}
+              beforeSrc={getOriginalUrl(job.id)}
+              afterSrc={getDownloadUrl(job.id)}
               beforeAlt="Original"
               afterAlt="Upscaled"
               className="aspect-video"

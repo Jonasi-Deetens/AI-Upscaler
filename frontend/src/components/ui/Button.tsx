@@ -18,7 +18,7 @@ const FOCUS_RING =
 const DISABLED = "disabled:opacity-50 disabled:cursor-not-allowed";
 const ACTIVE_SCALE = "active:scale-[0.98] transition-transform";
 
-export type ButtonVariant = "cta" | "primary" | "secondary" | "round" | "ghost" | "destructive";
+export type ButtonVariant = "cta" | "primary" | "secondary" | "round" | "ghost" | "destructive" | "iconTile";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -88,6 +88,11 @@ const variantBaseClasses: Record<ButtonVariant, string> = {
     FOCUS_RING,
     DISABLED
   ),
+  iconTile: cn(
+    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white dark:bg-gray-500/40 text-violet-600 dark:text-violet-400 shadow-md shadow-gray-700/40 dark:shadow-white/40 transition-[transform,color] duration-300 hover:scale-105 hover:text-white active:scale-[0.98] active:text-white cursor-pointer",
+    FOCUS_RING,
+    DISABLED
+  ),
 };
 
 const ghostDestructiveClasses =
@@ -110,7 +115,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const isSecondary = variant === "secondary";
     const isRound = variant === "round";
-    const sizeClass = isRound ? roundSizeClasses[size] : sizeClasses[size];
+    const isIconTile = variant === "iconTile";
+    const sizeClass = isRound || isIconTile ? roundSizeClasses[size] : sizeClasses[size];
     /* Secondary applies size to the inner span so padding matches other variants */
     const sizeClassForOuter = isSecondary ? "" : sizeClass;
     const variantClass = variantBaseClasses[variant];

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const PAGES: { href: string; label: string }[] = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "Tools" },
   { href: "/upscale", label: "Upscale" },
   { href: "/remove-bg", label: "Remove BG" },
   { href: "/convert", label: "Convert" },

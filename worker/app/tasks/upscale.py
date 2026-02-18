@@ -126,7 +126,13 @@ def upscale_task(job_id: str) -> None:
                     logger.warning("job_id=%s SwinIR requested but repo not found at %s", job_id, swinir_dir)
                     return
 
-            from app.pipeline import METHOD_BACKGROUND_REMOVE, METHOD_CONVERT, UPSCALE_METHODS, run as pipeline_run
+            from app.pipeline import (
+                METHOD_BACKGROUND_REMOVE,
+                METHOD_COMPRESS,
+                METHOD_CONVERT,
+                UPSCALE_METHODS,
+                run as pipeline_run,
+            )
 
             method_labels = {
                 "real_esrgan": "Real-ESRGAN",
@@ -135,10 +141,13 @@ def upscale_task(job_id: str) -> None:
                 "real_esrgan_anime": "Anime (Real-ESRGAN)",
                 "background_remove": "Background remove",
                 "convert": "Convert",
+                "compress": "Compress",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == METHOD_CONVERT:
                 detail = f"Converting to {getattr(job, 'target_format', 'png')}…"
+            elif job.method == METHOD_COMPRESS:
+                detail = f"Compressing to {getattr(job, 'target_format', 'webp')}…"
             elif job.method == METHOD_BACKGROUND_REMOVE:
                 detail = "Running Background remove…"
             else:
@@ -151,7 +160,11 @@ def upscale_task(job_id: str) -> None:
                 getattr(job, "face_enhance", False),
             )
 
-            if job.method not in UPSCALE_METHODS and job.method not in (METHOD_BACKGROUND_REMOVE, METHOD_CONVERT):
+            if job.method not in UPSCALE_METHODS and job.method not in (
+                METHOD_BACKGROUND_REMOVE,
+                METHOD_CONVERT,
+                METHOD_COMPRESS,
+            ):
                 _update_job_status(
                     job_id,
                     JOB_STATUS_FAILED,

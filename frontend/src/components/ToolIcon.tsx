@@ -1,6 +1,6 @@
 "use client";
 
-type ToolIconId = "upscale" | "remove-bg" | "convert" | "jobs";
+type ToolIconId = "upscale" | "remove-bg" | "convert" | "compress" | "jobs";
 
 const icons: Record<ToolIconId, React.ReactNode> = {
   upscale: (
@@ -16,6 +16,11 @@ const icons: Record<ToolIconId, React.ReactNode> = {
   convert: (
     <svg className="size-full" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  compress: (
+    <svg className="size-full" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
     </svg>
   ),
   jobs: (

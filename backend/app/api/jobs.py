@@ -64,9 +64,11 @@ ALLOWED_METHODS = (
     "real_esrgan_anime",
     "background_remove",
     "convert",
+    "compress",
 )
 
 CONVERT_TARGET_FORMATS = ("webp", "png", "jpeg")
+COMPRESS_TARGET_FORMATS = ("webp", "jpeg")
 
 # Media types and filename suffix for download
 DOWNLOAD_MEDIA_TYPES = {"webp": "image/webp", "png": "image/png", "jpeg": "image/jpeg"}
@@ -82,6 +84,9 @@ def _result_download_name_and_media_type(job) -> tuple[str, str]:
     if job.method == "convert" and getattr(job, "target_format", None):
         ext = job.target_format
         return f"{base}_converted.{ext}", DOWNLOAD_MEDIA_TYPES.get(ext, "application/octet-stream")
+    if job.method == "compress" and getattr(job, "target_format", None):
+        ext = job.target_format
+        return f"{base}_compressed.{ext}", DOWNLOAD_MEDIA_TYPES.get(ext, "application/octet-stream")
     return f"{base}_upscaled.png", "image/png"
 
 
@@ -120,6 +125,21 @@ def upload_jobs(
                     raise HTTPException(400, detail="quality must be between 1 and 100")
             except ValueError:
                 raise HTTPException(400, detail="quality must be a number between 1 and 100")
+    elif method == "compress":
+        if not target_format or target_format not in COMPRESS_TARGET_FORMATS:
+            raise HTTPException(
+                400,
+                detail=f"target_format required for compress, one of: {', '.join(COMPRESS_TARGET_FORMATS)}",
+            )
+        if quality in (None, ""):
+            raise HTTPException(400, detail="quality required for compress (1–100)")
+        try:
+            quality_int = int(quality)
+            if quality_int < 1 or quality_int > 100:
+                raise HTTPException(400, detail="quality must be between 1 and 100")
+        except ValueError:
+            raise HTTPException(400, detail="quality must be a number between 1 and 100")
+        scale = 1
     elif method == "background_remove":
         if scale != 1:
             raise HTTPException(400, detail="scale must be 1 for background remove")
@@ -164,8 +184,8 @@ def upload_jobs(
         method=method,
         denoise_first=denoise_first.lower() == "true",
         face_enhance=face_enhance.lower() == "true",
-        target_format=target_format if method == "convert" else None,
-        quality=quality_int if method == "convert" else None,
+        target_format=target_format if method in ("convert", "compress") else None,
+        quality=quality_int if method in ("convert", "compress") else None,
     )
     storage = get_storage()
     for job, (_, upload_file) in zip(jobs, valid):

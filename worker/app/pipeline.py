@@ -13,13 +13,15 @@ from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
 METHOD_CONVERT = "convert"
+METHOD_COMPRESS = "compress"
 UPSCALE_METHODS = ("real_esrgan", "swinir", "esrgan", "real_esrgan_anime")
 
 
 def run(job, input_path: Path, output_path: Path) -> None:
     """
     Run pipeline for job. job must have: method, scale, denoise_first, face_enhance.
-    For convert: target_format, optional quality. Reads from input_path, writes final result to output_path.
+    For convert: target_format, optional quality. For compress: target_format (webp/jpeg), quality.
+    Reads from input_path, writes final result to output_path.
     """
     if job.method == METHOD_CONVERT:
         convert.run(
@@ -27,6 +29,14 @@ def run(job, input_path: Path, output_path: Path) -> None:
             output_path,
             target_format=getattr(job, "target_format", "png"),
             quality=getattr(job, "quality", None),
+        )
+        return
+    if job.method == METHOD_COMPRESS:
+        convert.run(
+            input_path,
+            output_path,
+            target_format=getattr(job, "target_format", "webp"),
+            quality=getattr(job, "quality", 85),
         )
         return
 

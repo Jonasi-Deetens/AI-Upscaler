@@ -9,6 +9,7 @@ const PAGES: { href: string; label: string }[] = [
   { href: "/upscale", label: "Upscale" },
   { href: "/remove-bg", label: "Remove BG" },
   { href: "/convert", label: "Convert" },
+  { href: "/compress", label: "Compress" },
   { href: "/jobs", label: "Jobs" },
 ];
 

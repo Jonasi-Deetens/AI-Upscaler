@@ -51,6 +51,8 @@ def _job_to_response(request: Request, job) -> JobResponse:
         error_message=job.error_message,
         status_detail=getattr(job, "status_detail", None),
         progress=getattr(job, "progress", None),
+        target_format=getattr(job, "target_format", None),
+        quality=getattr(job, "quality", None),
     )
 
 
@@ -60,7 +62,26 @@ ALLOWED_METHODS = (
     "esrgan",
     "real_esrgan_anime",
     "background_remove",
+    "convert",
 )
+
+CONVERT_TARGET_FORMATS = ("webp", "png", "jpeg")
+
+# Media types and filename suffix for download
+DOWNLOAD_MEDIA_TYPES = {"webp": "image/webp", "png": "image/png", "jpeg": "image/jpeg"}
+
+
+def _result_download_name_and_media_type(job) -> tuple[str, str]:
+    """Return (download_filename, media_type) for a completed job."""
+    base, _ = (
+        job.original_filename.rsplit(".", 1)
+        if "." in job.original_filename
+        else (job.original_filename, "")
+    )
+    if job.method == "convert" and getattr(job, "target_format", None):
+        ext = job.target_format
+        return f"{base}_converted.{ext}", DOWNLOAD_MEDIA_TYPES.get(ext, "application/octet-stream")
+    return f"{base}_upscaled.png", "image/png"
 
 
 @router.post("/upload", response_model=UploadResponse)
@@ -71,6 +92,8 @@ def upload_jobs(
     method: str = Form("real_esrgan"),
     denoise_first: str = Form("false"),
     face_enhance: str = Form("false"),
+    target_format: str | None = Form(None),
+    quality: str | None = Form(None),
     db: Session = Depends(get_db),
 ) -> UploadResponse:
     check_upload_rate_limit(request)
@@ -81,7 +104,22 @@ def upload_jobs(
         )
     if method not in ALLOWED_METHODS:
         raise HTTPException(400, detail=f"method must be one of: {', '.join(ALLOWED_METHODS)}")
-    if method == "background_remove":
+    quality_int: int | None = None
+    if method == "convert":
+        if not target_format or target_format not in CONVERT_TARGET_FORMATS:
+            raise HTTPException(
+                400,
+                detail=f"target_format required for convert, one of: {', '.join(CONVERT_TARGET_FORMATS)}",
+            )
+        scale = 1
+        if quality not in (None, ""):
+            try:
+                quality_int = int(quality)
+                if quality_int < 1 or quality_int > 100:
+                    raise HTTPException(400, detail="quality must be between 1 and 100")
+            except ValueError:
+                raise HTTPException(400, detail="quality must be a number between 1 and 100")
+    elif method == "background_remove":
         if scale != 1:
             raise HTTPException(400, detail="scale must be 1 for background remove")
     elif scale not in (2, 4):
@@ -125,6 +163,8 @@ def upload_jobs(
         method=method,
         denoise_first=denoise_first.lower() == "true",
         face_enhance=face_enhance.lower() == "true",
+        target_format=target_format if method == "convert" else None,
+        quality=quality_int if method == "convert" else None,
     )
     storage = get_storage()
     for job, (_, upload_file) in zip(jobs, valid):
@@ -172,8 +212,8 @@ def batch_download(
             with tempfile.NamedTemporaryFile(delete=False) as tmp:
                 try:
                     storage.get_to_file(job.result_key, Path(tmp.name))
-                    base, _ = (job.original_filename.rsplit(".", 1) if "." in job.original_filename else (job.original_filename, ""))
-                    zf.write(tmp.name, arcname=f"{base}_upscaled.png")
+                    arcname, _ = _result_download_name_and_media_type(job)
+                    zf.write(tmp.name, arcname=arcname)
                 finally:
                     Path(tmp.name).unlink(missing_ok=True)
     buf.seek(0)
@@ -231,11 +271,10 @@ def download_result(
         raise HTTPException(410, detail="Result expired")
     storage = get_storage()
     url_or_path = storage.get_url(job.result_key)
-    base, _ = job.original_filename.rsplit(".", 1) if "." in job.original_filename else (job.original_filename, "")
-    download_name = f"{base}_upscaled.png"
+    download_name, media_type = _result_download_name_and_media_type(job)
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         return RedirectResponse(url=url_or_path, status_code=302)
-    return FileResponse(url_or_path, filename=download_name, media_type="image/png")
+    return FileResponse(url_or_path, filename=download_name, media_type=media_type)
 
 
 @router.get("/{job_id}/original")
@@ -299,6 +338,8 @@ def retry_job_endpoint(
         method=job.method,
         denoise_first=job.denoise_first,
         face_enhance=job.face_enhance,
+        target_format=getattr(job, "target_format", None),
+        quality=getattr(job, "quality", None),
     )
     new_job = new_jobs[0]
     storage = get_storage()

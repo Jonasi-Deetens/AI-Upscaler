@@ -8,18 +8,28 @@ import shutil
 from pathlib import Path
 
 from app.config import settings
-from app.processors import background_remove, denoise, face_enhance
+from app.processors import background_remove, convert, denoise, face_enhance
 from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
+METHOD_CONVERT = "convert"
 UPSCALE_METHODS = ("real_esrgan", "swinir", "esrgan", "real_esrgan_anime")
 
 
 def run(job, input_path: Path, output_path: Path) -> None:
     """
     Run pipeline for job. job must have: method, scale, denoise_first, face_enhance.
-    Reads from input_path, writes final result to output_path.
+    For convert: target_format, optional quality. Reads from input_path, writes final result to output_path.
     """
+    if job.method == METHOD_CONVERT:
+        convert.run(
+            input_path,
+            output_path,
+            target_format=getattr(job, "target_format", "png"),
+            quality=getattr(job, "quality", None),
+        )
+        return
+
     current = input_path
     work_dir = input_path.parent
     step_out = work_dir / "step.png"

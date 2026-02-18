@@ -6,7 +6,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const PAGES: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
-  { href: "/upload", label: "Upload" },
+  { href: "/upscale", label: "Upscale" },
+  { href: "/remove-bg", label: "Remove BG" },
+  { href: "/convert", label: "Convert" },
   { href: "/jobs", label: "Jobs" },
 ];
 

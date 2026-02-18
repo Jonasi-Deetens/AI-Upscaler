@@ -30,6 +30,8 @@ class JobResponse(BaseModel):
     error_message: str | None
     status_detail: str | None
     progress: int | None = None  # 0-100 when processing
+    target_format: str | None = None
+    quality: int | None = None
 
 
 class UploadResponse(BaseModel):

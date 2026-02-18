@@ -20,6 +20,7 @@ JOB_METHOD_SWINIR = "swinir"
 JOB_METHOD_ESRGAN = "esrgan"
 JOB_METHOD_REAL_ESRGAN_ANIME = "real_esrgan_anime"
 JOB_METHOD_BACKGROUND_REMOVE = "background_remove"
+JOB_METHOD_CONVERT = "convert"
 
 
 class Job(Base):
@@ -46,3 +47,5 @@ class Job(Base):
     status_detail = Column(String(256), nullable=True)
     celery_task_id = Column(String(255), nullable=True)
     progress = Column(Integer, nullable=True)  # 0-100 when processing
+    target_format = Column(String(16), nullable=True)  # for convert: webp, png, jpeg
+    quality = Column(Integer, nullable=True)  # for convert: 1-100

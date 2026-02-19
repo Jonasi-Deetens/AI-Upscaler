@@ -86,32 +86,44 @@ def upscale_task(job_id: str) -> None:
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            input_path = tmp / "input"
-            output_path = tmp / "output.png"
+            opts = getattr(job, "options", None) or {}
+            multi_count = opts.get("_input_count", 1)
 
-            _update_job_status(
-                job_id, JOB_STATUS_PROCESSING, status_detail="Downloading image…", progress=15
-            )
-            logger.info("job_id=%s downloading from storage key=%s", job_id, job.original_key)
-            storage.get_to_file(job.original_key, input_path)
+            if multi_count > 1:
+                _update_job_status(
+                    job_id, JOB_STATUS_PROCESSING, status_detail="Downloading images…", progress=15
+                )
+                for i in range(multi_count):
+                    key = f"originals/{job_id}/{i}"
+                    storage.get_to_file(key, tmp / str(i))
+                input_path = tmp
+                output_path = tmp / "output.pdf" if job.method == "image_to_pdf" else tmp / "output.png"
+            else:
+                input_path = tmp / "input"
+                output_path = tmp / "output.png"
+                _update_job_status(
+                    job_id, JOB_STATUS_PROCESSING, status_detail="Downloading image…", progress=15
+                )
+                logger.info("job_id=%s downloading from storage key=%s", job_id, job.original_key)
+                storage.get_to_file(job.original_key, input_path)
 
-            try:
-                import cv2
-                img = cv2.imread(str(input_path))
-                if img is not None:
-                    h, w = img.shape[:2]
-                    mp = (h * w) / 1_000_000
-                    if mp > settings.max_megapixels:
-                        _update_job_status(
-                            job_id,
-                            JOB_STATUS_FAILED,
-                            error_message=f"Image exceeds {settings.max_megapixels} megapixels",
-                            finished_at=datetime.utcnow(),
-                            clear_progress=True,
-                        )
-                        return
-            except Exception:
-                pass
+                try:
+                    import cv2
+                    img = cv2.imread(str(input_path))
+                    if img is not None:
+                        h, w = img.shape[:2]
+                        mp = (h * w) / 1_000_000
+                        if mp > settings.max_megapixels:
+                            _update_job_status(
+                                job_id,
+                                JOB_STATUS_FAILED,
+                                error_message=f"Image exceeds {settings.max_megapixels} megapixels",
+                                finished_at=datetime.utcnow(),
+                                clear_progress=True,
+                            )
+                            return
+                except Exception:
+                    pass
 
             if job.method == "swinir":
                 swinir_dir = Path(os.environ.get("SWINIR_DIR", "/app/SwinIR"))
@@ -142,6 +154,17 @@ def upscale_task(job_id: str) -> None:
                 "crop": "Crop",
                 "strip_metadata": "Strip metadata",
                 "denoise": "Denoise",
+                "blur_sharpen": "Blur / Sharpen",
+                "brightness_contrast": "Brightness & contrast",
+                "watermark": "Watermark",
+                "rename": "Rename",
+                "auto_levels": "Auto levels",
+                "saturation": "Saturation",
+                "color_balance": "Color balance",
+                "filters": "Filters",
+                "border": "Border",
+                "collage": "Collage",
+                "image_to_pdf": "Image to PDF",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == "convert":

@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 
 from app.config import settings
-from app.processors import background_remove, blur_sharpen, brightness_contrast, convert, crop, denoise, face_enhance, rename, resize, restore, rotate_flip, strip_metadata, watermark
+from app.processors import auto_levels, background_remove, blur_sharpen, border, brightness_contrast, collage, color_balance, convert, crop, denoise, face_enhance, filters, image_to_pdf, rename, resize, restore, rotate_flip, saturation, strip_metadata, watermark
 from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
@@ -75,6 +75,34 @@ def _run_rename(job, input_path: Path, output_path: Path) -> None:
     rename.run(job, input_path, output_path)
 
 
+def _run_auto_levels(job, input_path: Path, output_path: Path) -> None:
+    auto_levels.run(job, input_path, output_path)
+
+
+def _run_saturation(job, input_path: Path, output_path: Path) -> None:
+    saturation.run(job, input_path, output_path)
+
+
+def _run_color_balance(job, input_path: Path, output_path: Path) -> None:
+    color_balance.run(job, input_path, output_path)
+
+
+def _run_filters(job, input_path: Path, output_path: Path) -> None:
+    filters.run(job, input_path, output_path)
+
+
+def _run_border(job, input_path: Path, output_path: Path) -> None:
+    border.run(job, input_path, output_path)
+
+
+def _run_collage(job, input_path: Path, output_path: Path) -> None:
+    collage.run(job, input_path, output_path)
+
+
+def _run_image_to_pdf(job, input_path: Path, output_path: Path) -> None:
+    image_to_pdf.run(job, input_path, output_path)
+
+
 def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -127,6 +155,13 @@ METHOD_RUNNERS: dict = {
     "brightness_contrast": _run_brightness_contrast,
     "watermark": _run_watermark,
     "rename": _run_rename,
+    "auto_levels": _run_auto_levels,
+    "saturation": _run_saturation,
+    "color_balance": _run_color_balance,
+    "filters": _run_filters,
+    "border": _run_border,
+    "collage": _run_collage,
+    "image_to_pdf": _run_image_to_pdf,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,

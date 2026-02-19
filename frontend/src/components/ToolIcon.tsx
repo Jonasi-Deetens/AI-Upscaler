@@ -17,6 +17,13 @@ import {
   Sun,
   Type,
   FilePen,
+  Contrast,
+  Palette,
+  SlidersHorizontal,
+  Image,
+  Square,
+  LayoutGrid,
+  FileText,
 } from "lucide-react";
 import { ColoredIcon, type IconColor } from "@/components/ColoredIcon";
 
@@ -35,6 +42,13 @@ export type ToolIconId =
   | "brightness-contrast"
   | "watermark"
   | "rename"
+  | "auto-levels"
+  | "saturation"
+  | "color-balance"
+  | "filters"
+  | "border"
+  | "collage"
+  | "image-to-pdf"
   | "jobs";
 
 const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
@@ -52,6 +66,13 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   "brightness-contrast": { icon: Sun, color: "amber" },
   watermark: { icon: Type, color: "blue" },
   rename: { icon: FilePen, color: "zinc" },
+  "auto-levels": { icon: Contrast, color: "cyan" },
+  saturation: { icon: Palette, color: "amber" },
+  "color-balance": { icon: SlidersHorizontal, color: "rose" },
+  filters: { icon: Image, color: "zinc" },
+  border: { icon: Square, color: "indigo" },
+  collage: { icon: LayoutGrid, color: "emerald" },
+  "image-to-pdf": { icon: FileText, color: "orange" },
   jobs: { icon: ClipboardList, color: "primary" },
 };
 

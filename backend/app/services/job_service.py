@@ -91,6 +91,44 @@ def create_jobs(
     return jobs
 
 
+def create_multi_input_job(
+    db: Session,
+    filenames: list[str],
+    method: str,
+    scale: int = 1,
+    denoise_first: bool = False,
+    face_enhance: bool = False,
+    target_format: str | None = None,
+    quality: int | None = None,
+    options: dict | None = None,
+) -> Job:
+    """Create a single job for multi-input methods (e.g. collage, image_to_pdf). Files stored at originals/{job_id}/0, 1, ..."""
+    expires_at = _utcnow_naive() + timedelta(minutes=settings.job_expiry_minutes)
+    opts = options or {}
+    opts = {**opts, "_input_count": len(filenames)}
+    display_name = filenames[0] if filenames else "output"
+    job = Job(
+        status=JOB_STATUS_QUEUED,
+        original_filename=display_name,
+        original_key="",
+        result_key=None,
+        scale=scale,
+        method=method,
+        denoise_first=denoise_first,
+        face_enhance=face_enhance,
+        expires_at=expires_at,
+        target_format=target_format,
+        quality=quality,
+        options=opts,
+    )
+    db.add(job)
+    db.flush()
+    job.original_key = f"originals/{job.id}"
+    db.commit()
+    db.refresh(job)
+    return job
+
+
 def get_jobs_by_ids(db: Session, job_ids: list[UUID]) -> list[Job]:
     if not job_ids:
         return []

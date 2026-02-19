@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -25,5 +25,12 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "brightness-contrast", href: "/brightness-contrast", title: "Brightness & contrast", description: "Adjust brightness and contrast.", icon: "brightness-contrast" },
   { id: "watermark", href: "/watermark", title: "Watermark", description: "Add text overlay.", icon: "watermark" },
   { id: "rename", href: "/rename", title: "Rename", description: "Add prefix to filenames.", icon: "rename" },
+  { id: "auto-levels", href: "/auto-levels", title: "Auto levels", description: "One-click histogram stretch or equalize.", icon: "auto-levels" },
+  { id: "saturation", href: "/saturation", title: "Saturation", description: "Adjust saturation and vibrance.", icon: "saturation" },
+  { id: "color-balance", href: "/color-balance", title: "Color balance", description: "R, G, B sliders.", icon: "color-balance" },
+  { id: "filters", href: "/filters", title: "Filters", description: "Grayscale, sepia, vintage presets.", icon: "filters" },
+  { id: "border", href: "/border", title: "Border", description: "Add padding or frame.", icon: "border" },
+  { id: "collage", href: "/collage", title: "Collage", description: "Grid layout from multiple images.", icon: "collage" },
+  { id: "image-to-pdf", href: "/image-to-pdf", title: "Image to PDF", description: "Combine images into one PDF.", icon: "image-to-pdf" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

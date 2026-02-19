@@ -496,6 +496,239 @@ def _download_info_rename(job) -> tuple[str, str]:
     return download_name, "image/png"
 
 
+AUTO_LEVELS_MODES = ("levels", "contrast")
+
+
+def _validate_auto_levels(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    mode = (opts.get("mode") or "levels").strip() or "levels"
+    if mode not in AUTO_LEVELS_MODES:
+        raise HTTPException(400, detail=f"mode must be one of: {', '.join(AUTO_LEVELS_MODES)}")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"mode": mode},
+    }
+
+
+def _download_info_auto_levels(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_auto_levels.png", "image/png"
+
+
+def _validate_saturation(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        saturation = int(opts.get("saturation", 100))
+        if saturation < 0 or saturation > 200:
+            raise HTTPException(400, detail="saturation must be between 0 and 200")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="saturation must be an integer between 0 and 200")
+    try:
+        vibrance = int(opts.get("vibrance", 100))
+        if vibrance < 0 or vibrance > 200:
+            raise HTTPException(400, detail="vibrance must be between 0 and 200")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="vibrance must be an integer between 0 and 200")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"saturation": saturation, "vibrance": vibrance},
+    }
+
+
+def _download_info_saturation(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_saturation.png", "image/png"
+
+
+def _validate_color_balance(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    for key in ("r", "g", "b"):
+        try:
+            val = int(opts.get(key, 0))
+            if val < -100 or val > 100:
+                raise HTTPException(400, detail=f"{key} must be between -100 and 100")
+        except (TypeError, ValueError):
+            raise HTTPException(400, detail=f"{key} must be an integer between -100 and 100")
+    r = int(opts.get("r", 0))
+    g = int(opts.get("g", 0))
+    b = int(opts.get("b", 0))
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"r": r, "g": g, "b": b},
+    }
+
+
+def _download_info_color_balance(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_color_balance.png", "image/png"
+
+
+FILTER_PRESETS = ("grayscale", "sepia", "vintage_warm", "vintage_cool")
+
+
+def _validate_filters(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    preset = (opts.get("preset") or "grayscale").strip() or "grayscale"
+    if preset not in FILTER_PRESETS:
+        raise HTTPException(400, detail=f"preset must be one of: {', '.join(FILTER_PRESETS)}")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"preset": preset},
+    }
+
+
+def _download_info_filters(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_filtered.png", "image/png"
+
+
+def _validate_border(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        padding = int(opts.get("padding", 20))
+        if padding < 0 or padding > 500:
+            raise HTTPException(400, detail="padding must be between 0 and 500")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="padding must be an integer between 0 and 500")
+    color = (opts.get("color") or "#ffffff").strip() or "#ffffff"
+    if not (len(color) == 7 and color[0] == "#" and all(c in "0123456789abcdefABCDEF" for c in color[1:])):
+        color = "#ffffff"
+    try:
+        width = int(opts.get("width", 0))
+        if width < 0 or width > 100:
+            raise HTTPException(400, detail="width must be between 0 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="width must be an integer between 0 and 100")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"padding": padding, "color": color, "width": width},
+    }
+
+
+def _download_info_border(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_bordered.png", "image/png"
+
+
+def _layout_to_rows_cols(layout: str) -> tuple[int, int]:
+    if layout == "2x2":
+        return 2, 2
+    if layout == "3x3":
+        return 3, 3
+    if layout == "1x4":
+        return 1, 4
+    if layout == "2x3":
+        return 2, 3
+    if layout == "3x2":
+        return 3, 2
+    return 2, 2
+
+
+COLLAGE_LAYOUTS = ("2x2", "3x3", "1x4", "2x3", "3x2")
+
+
+def _validate_collage(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    layout = (opts.get("layout") or "2x2").strip() or "2x2"
+    if layout not in COLLAGE_LAYOUTS:
+        raise HTTPException(400, detail=f"layout must be one of: {', '.join(COLLAGE_LAYOUTS)}")
+    rows, cols = _layout_to_rows_cols(layout)
+    try:
+        spacing = int(opts.get("spacing", 10))
+        if spacing < 0 or spacing > 100:
+            raise HTTPException(400, detail="spacing must be between 0 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="spacing must be an integer between 0 and 100")
+    background = (opts.get("background") or "#ffffff").strip() or "#ffffff"
+    if not (len(background) == 7 and background[0] == "#" and all(c in "0123456789abcdefABCDEF" for c in background[1:])):
+        background = "#ffffff"
+    job_opts = {"layout": layout, "grid_rows": rows, "grid_cols": cols, "spacing": spacing, "background": background}
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": job_opts,
+    }
+
+
+def _download_info_collage(job) -> tuple[str, str]:
+    return "collage.png", "image/png"
+
+
+def _validate_image_to_pdf(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options or {},
+    }
+
+
+def _download_info_image_to_pdf(job) -> tuple[str, str]:
+    return "document.pdf", "application/pdf"
+
+
 # Registry: method -> (validate_fn, download_info_fn)
 METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "real_esrgan": (_validate_upscale, _download_info_upscale),
@@ -515,6 +748,13 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "brightness_contrast": (_validate_brightness_contrast, _download_info_brightness_contrast),
     "watermark": (_validate_watermark, _download_info_watermark),
     "rename": (_validate_rename, _download_info_rename),
+    "auto_levels": (_validate_auto_levels, _download_info_auto_levels),
+    "saturation": (_validate_saturation, _download_info_saturation),
+    "color_balance": (_validate_color_balance, _download_info_color_balance),
+    "filters": (_validate_filters, _download_info_filters),
+    "border": (_validate_border, _download_info_border),
+    "collage": (_validate_collage, _download_info_collage),
+    "image_to_pdf": (_validate_image_to_pdf, _download_info_image_to_pdf),
 }
 
 ALLOWED_METHODS = tuple(METHOD_HANDLERS.keys())

@@ -125,6 +125,30 @@ def upload_jobs(
         raise HTTPException(400, detail="No valid files")
 
     filenames = [v[0] for v in valid]
+    storage = get_storage()
+
+    MULTI_INPUT_METHODS = ("collage", "image_to_pdf")
+    if method in MULTI_INPUT_METHODS:
+        job = job_service.create_multi_input_job(
+            db,
+            filenames,
+            method=method,
+            scale=scale,
+            denoise_first=job_kwargs["denoise_first"],
+            face_enhance=job_kwargs["face_enhance"],
+            target_format=job_kwargs.get("target_format"),
+            quality=job_kwargs.get("quality"),
+            options=job_kwargs.get("options"),
+        )
+        for i, (_, upload_file) in enumerate(valid):
+            storage.put(f"originals/{job.id}/{i}", upload_file.file)
+        task_id = enqueue_upscale(job.id)
+        if task_id:
+            job.celery_task_id = task_id
+        db.commit()
+        logger.info("Upload created multi-input job_id=%s", job.id)
+        return UploadResponse(job_ids=[job.id])
+
     jobs = job_service.create_jobs(
         db,
         filenames,
@@ -136,7 +160,6 @@ def upload_jobs(
         quality=job_kwargs.get("quality"),
         options=job_kwargs.get("options"),
     )
-    storage = get_storage()
     for job, (_, upload_file) in zip(jobs, valid):
         storage.put(job.original_key, upload_file.file)
 

@@ -1,6 +1,6 @@
 import type { Job, UploadOptions } from "./types";
 
-/** Options for upload (upscale, convert, background_remove). */
+/** Options for upload (upscale, convert, background_remove, resize, etc.). */
 export interface UploadOptionsExtended {
   scale: number;
   method: string;
@@ -8,6 +8,8 @@ export interface UploadOptionsExtended {
   face_enhance?: boolean;
   target_format?: string;
   quality?: number;
+  /** Method-specific params (resize, crop, rotate_flip, etc.). Sent as JSON. */
+  options?: Record<string, unknown>;
 }
 
 // Browser calls the backend at this URL. Set in .env as NEXT_PUBLIC_API_URL=http://localhost:8000.
@@ -106,6 +108,9 @@ export async function uploadJobsWithProgress(
   form.append("face_enhance", options.face_enhance === true ? "true" : "false");
   if (options.target_format != null) form.append("target_format", options.target_format);
   if (options.quality != null) form.append("quality", String(options.quality));
+  if (options.options != null && Object.keys(options.options).length > 0) {
+    form.append("options", JSON.stringify(options.options));
+  }
   for (const file of files) {
     form.append("files", file);
   }

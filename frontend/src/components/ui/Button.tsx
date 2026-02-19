@@ -14,11 +14,11 @@ function cn(...classes: (string | undefined | false)[]): string {
 }
 
 const FOCUS_RING =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 const DISABLED = "disabled:opacity-50 disabled:cursor-not-allowed";
 const ACTIVE_SCALE = "active:scale-[0.98] transition-transform";
 
-export type ButtonVariant = "cta" | "primary" | "secondary" | "round" | "ghost" | "destructive" | "iconTile";
+export type ButtonVariant = "cta" | "accent" | "primary" | "secondary" | "round" | "roundPlain" | "ghost" | "destructive" | "iconTile";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -26,13 +26,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
   /** Render as the single child (e.g. Link, a) and apply button styles */
   asChild?: boolean;
-  /** Ghost variant only: use rose/destructive styling */
+  /** Ghost variant only: use destructive styling */
   destructive?: boolean;
   children?: ReactNode;
   className?: string;
 }
 
-/* Same padding and shape for all non-round variants so they look alike; only colors differ */
 const sizeClasses: Record<ButtonSize, string> = {
   sm: "px-3 py-2 text-sm",
   md: "px-4 py-2.5 text-sm",
@@ -51,52 +50,63 @@ const BASE_BUTTON =
 const variantBaseClasses: Record<ButtonVariant, string> = {
   cta: cn(
     BASE_BUTTON,
-    "gradient-ai text-white hover:opacity-90",
+    "bg-accent-gradient !text-white hover:opacity-90 [&_*]:!text-white [&_svg]:!text-white [&_svg]:shrink-0",
+    ACTIVE_SCALE,
+    FOCUS_RING,
+    DISABLED
+  ),
+  accent: cn(
+    BASE_BUTTON,
+    "bg-accent text-accent-foreground hover:bg-accent-gradient hover:!text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white border-2 border-transparent",
     ACTIVE_SCALE,
     FOCUS_RING,
     DISABLED
   ),
   primary: cn(
     BASE_BUTTON,
-    "bg-violet-600 dark:bg-violet-500 text-white hover:bg-violet-700 dark:hover:bg-violet-600 border-2 border-transparent transition-[border-color] duration-200 hover:border-violet-400 dark:hover:border-violet-300",
+    "bg-primary text-primary-foreground hover:bg-accent-gradient hover:!text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white border-2 border-transparent",
     ACTIVE_SCALE,
     FOCUS_RING,
     DISABLED
   ),
   secondary: cn(
     BASE_BUTTON,
-    "btn-ai-secondary btn-hover-border-secondary",
+    "bg-secondary text-secondary-foreground border border-border hover:bg-accent-gradient hover:!text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white hover:border-transparent",
     ACTIVE_SCALE,
     FOCUS_RING,
     DISABLED
   ),
   round: cn(
-    "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-neutral-200 dark:border-zinc-600 bg-white/80 dark:bg-zinc-800/80 text-neutral-500 dark:text-zinc-400 hover:border-neutral-300 dark:hover:border-zinc-500 hover:text-neutral-700 dark:hover:text-zinc-300 transition-colors cursor-pointer",
+    "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-border bg-background text-muted-foreground hover:border-accent-solid hover:bg-accent-gradient hover:text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white transition-colors cursor-pointer",
+    FOCUS_RING,
+    DISABLED
+  ),
+  roundPlain: cn(
+    "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-border bg-background text-muted-foreground hover:border-input hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer",
     FOCUS_RING,
     DISABLED
   ),
   ghost: cn(
     BASE_BUTTON,
-    "text-neutral-700 dark:text-zinc-300 hover:bg-neutral-100 dark:hover:bg-zinc-700 border-2 border-transparent transition-[border-color] duration-200 hover:border-neutral-300 dark:hover:border-zinc-500",
+    "text-foreground hover:bg-accent-gradient hover:!text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white border-2 border-transparent hover:border-transparent transition-colors",
     FOCUS_RING,
     DISABLED
   ),
   destructive: cn(
     BASE_BUTTON,
-    "border-2 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 bg-transparent hover:bg-rose-50 dark:hover:bg-rose-950/60 transition-[border-color] duration-200 hover:border-rose-400 dark:hover:border-rose-700",
+    "border-2 border-destructive/50 text-destructive bg-transparent hover:bg-destructive/10 hover:border-destructive",
     ACTIVE_SCALE,
     FOCUS_RING,
     DISABLED
   ),
   iconTile: cn(
-    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white dark:bg-gray-500/40 text-violet-600 dark:text-violet-400 shadow-md shadow-gray-700/40 dark:shadow-white/40 transition-[transform,color] duration-300 hover:scale-105 hover:text-white active:scale-[0.98] active:text-white cursor-pointer",
+    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-card border border-border text-primary shadow-sm transition-[transform,color] duration-300 hover:scale-105 hover:bg-accent-gradient hover:!text-white hover:[&_*]:!text-white hover:[&_svg]:!text-white active:scale-[0.98] cursor-pointer",
     FOCUS_RING,
     DISABLED
   ),
 };
 
-const ghostDestructiveClasses =
-  "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-zinc-700 hover:text-rose-700 dark:hover:text-rose-300";
+const ghostDestructiveClasses = "text-destructive hover:bg-destructive/10 hover:text-destructive";
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -113,30 +123,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const isSecondary = variant === "secondary";
-    const isRound = variant === "round";
+    const isRound = variant === "round" || variant === "roundPlain";
     const isIconTile = variant === "iconTile";
     const sizeClass = isRound || isIconTile ? roundSizeClasses[size] : sizeClasses[size];
-    /* Secondary applies size to the inner span so padding matches other variants */
-    const sizeClassForOuter = isSecondary ? "" : sizeClass;
     const variantClass = variantBaseClasses[variant];
     const ghostExtra = variant === "ghost" && destructive ? ghostDestructiveClasses : "";
-    const mergedClassName = cn(
-      variantClass,
-      sizeClassForOuter,
-      ghostExtra,
-      className
-    );
+    const mergedClassName = cn(variantClass, sizeClass, ghostExtra, className);
 
     if (asChild && isValidElement(children)) {
       const child = children as ReactElement<{ className?: string; ref?: unknown; children?: ReactNode }>;
-      const inner = isSecondary ? (
-        <span className={cn("btn-ai-secondary-inner", sizeClass)}>
-          <span>{child.props.children}</span>
-        </span>
-      ) : (
-        child.props.children
-      );
       const childRef = "ref" in child ? (child as { ref?: React.Ref<unknown> }).ref : undefined;
       const mergedRef = (el: HTMLButtonElement | HTMLAnchorElement | null) => {
         if (typeof ref === "function") ref(el as HTMLButtonElement);
@@ -149,24 +144,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       return cloneElement(child, {
         className: cn(child.props.className, mergedClassName),
         ref: mergedRef,
-        ...(isSecondary && { children: inner }),
       });
-    }
-
-    if (isSecondary) {
-      return (
-        <button
-          ref={ref}
-          type={type}
-          disabled={disabled}
-          className={mergedClassName}
-          {...rest}
-        >
-          <span className={cn("btn-ai-secondary-inner", sizeClass)}>
-            <span>{children}</span>
-          </span>
-        </button>
-      );
     }
 
     return (

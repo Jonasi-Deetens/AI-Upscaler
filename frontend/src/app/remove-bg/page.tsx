@@ -66,22 +66,22 @@ export default function RemoveBgPage() {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-5 py-12">
         <Link
           href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"
+          className="text-primary text-sm font-medium hover:underline inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
         >
           ← Back
         </Link>
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-6">
           Remove background
         </h1>
-        <p className="text-neutral-600 dark:text-zinc-400 mb-6">
+        <p className="text-muted-foreground mb-6">
           Upload images to remove the background. Output is PNG with transparency.
         </p>
         {(queueStats.queued > 0 || queueStats.processing > 0) && (
-          <p className="mb-4 text-sm text-neutral-500 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-muted-foreground">
             {queueStats.queued} in queue, {queueStats.processing} processing.
           </p>
         )}
@@ -92,19 +92,19 @@ export default function RemoveBgPage() {
             className="mb-4"
           />
           {uploadProgress != null && (
-            <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-zinc-700 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full bg-violet-500 dark:bg-violet-600 transition-[width] duration-200"
+                className="h-full bg-primary transition-[width] duration-200"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
           )}
           {error && (
-            <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm">
-              <p className="text-rose-700 dark:text-rose-300">{error}</p>
+            <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm">
+              <p className="text-destructive">{error}</p>
               {errorRequestId && (
                 <div className="mt-2 flex items-center gap-2">
-                  <code className="rounded bg-rose-100 dark:bg-rose-900/50 px-2 py-1 text-xs text-rose-800 dark:text-rose-200 font-mono">
+                  <code className="rounded bg-destructive/20 px-2 py-1 text-xs text-destructive font-mono">
                     {errorRequestId}
                   </code>
                   <Button

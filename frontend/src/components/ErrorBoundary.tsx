@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
-          <p className="mb-4 text-center text-neutral-700 dark:text-zinc-300">
+          <p className="mb-4 text-center text-foreground">
             Something went wrong.
           </p>
           <Button variant="cta" size="md" onClick={() => window.location.reload()}>

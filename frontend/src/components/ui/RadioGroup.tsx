@@ -28,7 +28,7 @@ export function RadioGroup<T extends string>({
   return (
     <fieldset className={className}>
       {label && (
-        <legend className="text-sm font-semibold text-neutral-700 dark:text-zinc-300 mb-3">
+        <legend className="text-sm font-semibold text-foreground mb-3">
           {label}
         </legend>
       )}
@@ -44,10 +44,10 @@ export function RadioGroup<T extends string>({
               value={opt.value}
               checked={value === opt.value}
               onChange={() => onChange(opt.value as T)}
-              className="w-4 h-4 rounded-full border-2 border-neutral-300 dark:border-zinc-500 text-violet-500 focus:ring-2 focus:ring-violet-300 dark:focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900"
+              className="w-4 h-4 rounded-full border-2 border-input text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
               {...rest}
             />
-            <span className="text-sm text-neutral-700 dark:text-zinc-300 group-hover:text-neutral-900 dark:group-hover:text-white">
+            <span className="text-sm text-foreground group-hover:text-foreground">
               {opt.label}
             </span>
           </label>

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Boolean, String, Integer, DateTime, Text, Index, Column
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 
 from app.core.database import Base
 
@@ -49,3 +49,4 @@ class Job(Base):
     progress = Column(Integer, nullable=True)  # 0-100 when processing
     target_format = Column(String(16), nullable=True)  # for convert: webp, png, jpeg
     quality = Column(Integer, nullable=True)  # for convert: 1-100
+    options = Column(JSONB, nullable=True)  # tool-specific params (resize, crop, etc.)

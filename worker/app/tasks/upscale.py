@@ -126,14 +126,7 @@ def upscale_task(job_id: str) -> None:
                     logger.warning("job_id=%s SwinIR requested but repo not found at %s", job_id, swinir_dir)
                     return
 
-            from app.pipeline import (
-                METHOD_BACKGROUND_REMOVE,
-                METHOD_COMPRESS,
-                METHOD_CONVERT,
-                METHOD_RESTORE,
-                UPSCALE_METHODS,
-                run as pipeline_run,
-            )
+            from app.pipeline import METHOD_RUNNERS, run as pipeline_run
 
             method_labels = {
                 "real_esrgan": "Real-ESRGAN",
@@ -144,16 +137,31 @@ def upscale_task(job_id: str) -> None:
                 "convert": "Convert",
                 "compress": "Compress",
                 "restore": "Restore & colorize",
+                "resize": "Resize",
+                "rotate_flip": "Rotate & flip",
+                "crop": "Crop",
+                "strip_metadata": "Strip metadata",
+                "denoise": "Denoise",
             }
             method_label = method_labels.get(job.method, job.method)
-            if job.method == METHOD_CONVERT:
+            if job.method == "convert":
                 detail = f"Converting to {getattr(job, 'target_format', 'png')}…"
-            elif job.method == METHOD_COMPRESS:
+            elif job.method == "compress":
                 detail = f"Compressing to {getattr(job, 'target_format', 'webp')}…"
-            elif job.method == METHOD_BACKGROUND_REMOVE:
+            elif job.method == "background_remove":
                 detail = "Running Background remove…"
-            elif job.method == METHOD_RESTORE:
+            elif job.method == "restore":
                 detail = "Running Restore & colorize…"
+            elif job.method == "resize":
+                detail = "Resizing…"
+            elif job.method == "rotate_flip":
+                detail = "Rotating & flipping…"
+            elif job.method == "crop":
+                detail = "Cropping…"
+            elif job.method == "strip_metadata":
+                detail = "Stripping metadata…"
+            elif job.method == "denoise":
+                detail = "Denoising…"
             else:
                 detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
             _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail, progress=25)
@@ -164,12 +172,7 @@ def upscale_task(job_id: str) -> None:
                 getattr(job, "face_enhance", False),
             )
 
-            if job.method not in UPSCALE_METHODS and job.method not in (
-                METHOD_BACKGROUND_REMOVE,
-                METHOD_CONVERT,
-                METHOD_COMPRESS,
-                METHOD_RESTORE,
-            ):
+            if job.method not in METHOD_RUNNERS:
                 _update_job_status(
                     job_id,
                     JOB_STATUS_FAILED,

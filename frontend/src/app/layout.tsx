@@ -1,12 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { AppSearchProvider } from "@/providers/AppSearchProvider";
 import { Navbar } from "@/components/Navbar";
 import { ApiBanner } from "@/components/ApiBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "AI Upscaler",
@@ -30,13 +38,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geist.className} min-h-screen text-neutral-800 dark:text-zinc-200`}>
+      <body className={`${geist.className} font-sans antialiased min-h-screen`}>
         <ThemeProvider>
-          <ApiBanner />
-          <Navbar />
-          <div className="relative z-10 min-h-screen pt-14">
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </div>
+          <AppSearchProvider>
+            <ApiBanner />
+            <div className="relative z-10 flex h-[100dvh] max-h-screen flex-col overflow-hidden">
+              <Navbar />
+              <div className="flex-1 min-h-0 overflow-auto pt-28 sm:pt-14">
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </div>
+              <footer className="shrink-0 border-t border-border bg-muted/50 py-3 text-center text-sm text-muted-foreground">
+              AI Upscaler — Image tools
+              {" · "}
+              <Link href="/jobs" className="text-accent-solid hover:underline">Jobs</Link>
+              </footer>
+            </div>
+          </AppSearchProvider>
         </ThemeProvider>
       </body>
     </html>

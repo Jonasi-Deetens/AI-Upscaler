@@ -61,6 +61,7 @@ def create_jobs(
     face_enhance: bool = False,
     target_format: str | None = None,
     quality: int | None = None,
+    options: dict | None = None,
 ) -> list[Job]:
     expires_at = _utcnow_naive() + timedelta(minutes=settings.job_expiry_minutes)
     jobs = []
@@ -77,6 +78,7 @@ def create_jobs(
             expires_at=expires_at,
             target_format=target_format,
             quality=quality,
+            options=options,
         )
         db.add(job)
         jobs.append(job)

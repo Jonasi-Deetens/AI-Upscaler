@@ -1,0 +1,9 @@
+# Dependencies are installed in the image via npm ci; do not copy host node_modules
+node_modules
+.next
+out
+.turbo
+*.log
+.env
+.env.*
+!.env.example

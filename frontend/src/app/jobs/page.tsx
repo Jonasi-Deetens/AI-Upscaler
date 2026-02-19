@@ -95,34 +95,34 @@ function JobsContent() {
   const showQueueHint = queueStats.queued > 0 || queueStats.processing > 0;
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <Link
           href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"
+          className="text-primary text-sm font-medium hover:underline inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
         >
           ← Back
         </Link>
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-6">
           Job status
         </h1>
         {showQueueHint && (
-          <p className="mb-4 text-sm text-neutral-500 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-muted-foreground">
             {queueStats.queued} in queue, {queueStats.processing} processing.
           </p>
         )}
         {justUploaded && ids.length > 0 && (
-          <p className="mb-4 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-200 px-4 py-3 text-sm">
+          <p className="mb-4 rounded-xl bg-primary/10 text-primary px-4 py-3 text-sm">
             Your jobs are processing. We&apos;ll notify you when they&apos;re ready (if you allow notifications).
           </p>
         )}
         {ids.length === 0 ? (
-          <p className="text-neutral-600 dark:text-zinc-400">
+          <p className="text-muted-foreground">
             No job IDs. Upload images first.
           </p>
         ) : fetchError ? (
-          <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-4">
-            <p className="text-rose-700 dark:text-rose-300 mb-3">{fetchError}</p>
+          <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-4">
+            <p className="text-destructive mb-3">{fetchError}</p>
             <Button
               type="button"
               variant="primary"
@@ -138,12 +138,12 @@ function JobsContent() {
         ) : !hasFetched && jobs.length === 0 ? (
           <ul className="space-y-4" aria-busy="true" aria-label="Loading jobs">
             {ids.map((id) => (
-              <li key={id} className="rounded-2xl border border-neutral-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800/60 p-5 animate-pulse">
+              <li key={id} className="rounded-2xl border border-border bg-card p-5 animate-pulse">
                 <div className="flex gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-neutral-200 dark:bg-zinc-700 shrink-0" />
+                  <div className="h-14 w-14 rounded-xl bg-muted shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 w-3/4 rounded bg-neutral-200 dark:bg-zinc-700" />
-                    <div className="h-3 w-1/2 rounded bg-neutral-200 dark:bg-zinc-700" />
+                    <div className="h-4 w-3/4 rounded bg-muted" />
+                    <div className="h-3 w-1/2 rounded bg-muted" />
                   </div>
                 </div>
               </li>
@@ -180,18 +180,18 @@ function JobsContent() {
 
 function JobsFallback() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="h-5 w-24 rounded bg-neutral-200 dark:bg-zinc-700 animate-pulse mb-8" />
-        <div className="h-9 w-48 rounded bg-neutral-200 dark:bg-zinc-700 animate-pulse mb-6" />
+        <div className="h-5 w-24 rounded bg-muted animate-pulse mb-8" />
+        <div className="h-9 w-48 rounded bg-muted animate-pulse mb-6" />
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl border border-neutral-200 dark:border-zinc-700 bg-white/80 dark:bg-zinc-800/60 p-5 animate-pulse">
+            <div key={i} className="rounded-2xl border border-border bg-card p-5 animate-pulse">
               <div className="flex gap-4">
-                <div className="h-14 w-14 rounded-xl bg-neutral-200 dark:bg-zinc-700 shrink-0" />
+                <div className="h-14 w-14 rounded-xl bg-muted shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-3/4 rounded bg-neutral-200 dark:bg-zinc-700" />
-                  <div className="h-3 w-1/2 rounded bg-neutral-200 dark:bg-zinc-700" />
+                  <div className="h-4 w-3/4 rounded bg-muted" />
+                  <div className="h-3 w-1/2 rounded bg-muted" />
                 </div>
               </div>
             </div>

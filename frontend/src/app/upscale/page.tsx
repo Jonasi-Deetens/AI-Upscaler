@@ -118,19 +118,19 @@ export default function UpscalePage() {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-5 py-12">
         <Link
           href="/"
-          className="gradient-ai-text text-sm font-medium hover:opacity-90 inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 rounded"
+          className="text-primary text-sm font-medium hover:underline inline-block mb-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
         >
           ← Back
         </Link>
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-6">
           Upscale images
         </h1>
         {(queueStats.queued > 0 || queueStats.processing > 0) && (
-          <p className="mb-4 text-sm text-neutral-500 dark:text-zinc-400">
+          <p className="mb-4 text-sm text-muted-foreground">
             {queueStats.queued} in queue, {queueStats.processing} processing. Jobs may take a bit when the queue is busy.
           </p>
         )}
@@ -150,7 +150,7 @@ export default function UpscalePage() {
           </div>
           {showCustomControls && (
             <>
-              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
+              <div className="rounded-2xl bg-card border border-border p-5 shadow-sm">
                 <RadioGroup
                   name="scale"
                   label="Scale"
@@ -159,7 +159,7 @@ export default function UpscalePage() {
                   onChange={(v) => setScale(Number(v) as 2 | 4)}
                 />
               </div>
-              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm">
+              <div className="rounded-2xl bg-card border border-border p-5 shadow-sm">
                 <RadioGroup
                   name="method"
                   label="Method"
@@ -168,15 +168,15 @@ export default function UpscalePage() {
                   onChange={setMethod}
                 />
               </div>
-              <div className="rounded-2xl bg-white/70 dark:bg-zinc-800/60 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-5 shadow-sm space-y-3">
+              <div className="rounded-2xl bg-card border border-border p-5 shadow-sm space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={denoiseFirst}
                     onChange={(e) => setDenoiseFirst(e.target.checked)}
-                    className="rounded border-neutral-300 dark:border-zinc-600"
+                    className="rounded border-input"
                   />
-                  <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
+                  <span className="text-sm font-medium text-foreground">
                     Denoise first
                   </span>
                 </label>
@@ -185,9 +185,9 @@ export default function UpscalePage() {
                     type="checkbox"
                     checked={faceEnhance}
                     onChange={(e) => setFaceEnhance(e.target.checked)}
-                    className="rounded border-neutral-300 dark:border-zinc-600"
+                    className="rounded border-input"
                   />
-                  <span className="text-sm font-medium text-neutral-800 dark:text-zinc-200">
+                  <span className="text-sm font-medium text-foreground">
                     Face enhance (GFPGAN)
                   </span>
                 </label>
@@ -195,19 +195,19 @@ export default function UpscalePage() {
             </>
           )}
           {uploadProgress != null && (
-            <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-zinc-700 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full bg-violet-500 dark:bg-violet-600 transition-[width] duration-200"
+                className="h-full bg-primary transition-[width] duration-200"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
           )}
           {error && (
-            <div className="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 text-sm">
-              <p className="text-rose-700 dark:text-rose-300">{error}</p>
+            <div className="rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm">
+              <p className="text-destructive">{error}</p>
               {errorRequestId && (
                 <div className="mt-2 flex items-center gap-2">
-                  <code className="rounded bg-rose-100 dark:bg-rose-900/50 px-2 py-1 text-xs text-rose-800 dark:text-rose-200 font-mono">
+                  <code className="rounded bg-destructive/20 px-2 py-1 text-xs text-destructive font-mono">
                     {errorRequestId}
                   </code>
                   <Button

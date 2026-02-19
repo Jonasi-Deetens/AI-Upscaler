@@ -33,6 +33,7 @@ class JobResponse(BaseModel):
     progress: int | None = None  # 0-100 when processing
     target_format: str | None = None
     quality: int | None = None
+    options: dict | None = None
 
 
 class UploadResponse(BaseModel):

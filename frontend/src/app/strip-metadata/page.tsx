@@ -8,7 +8,7 @@ import { FileDropzone } from "@/components/FileDropzone";
 import { uploadJobsWithProgress, getQueueStats } from "@/lib/api";
 import { uploadErrorMessage } from "@/lib/uploadErrors";
 
-export default function RestorePage() {
+export default function StripMetadataPage() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,10 +46,7 @@ export default function RestorePage() {
     try {
       const { job_ids } = await uploadJobsWithProgress(
         files,
-        {
-          scale: 1,
-          method: "restore",
-        },
+        { scale: 1, method: "strip_metadata", options: {} },
         (percent) => setUploadProgress(percent)
       );
       setUploadProgress(100);
@@ -75,10 +72,10 @@ export default function RestorePage() {
           ← Back
         </Link>
         <h1 className="text-3xl font-bold text-foreground mb-6">
-          Restore & colorize
+          Strip metadata
         </h1>
         <p className="text-muted-foreground mb-6">
-          Restore old or damaged photos and add color to black-and-white images. Uses AI for face restoration and optional colorization.
+          Remove EXIF and other metadata from images. Output is PNG without embedded data (privacy/size).
         </p>
         {(queueStats.queued > 0 || queueStats.processing > 0) && (
           <p className="mb-4 text-sm text-muted-foreground">
@@ -132,7 +129,7 @@ export default function RestorePage() {
               ? uploadProgress != null
                 ? `Uploading… ${uploadProgress}%`
                 : "Uploading…"
-              : "Restore & colorize"}
+              : "Strip metadata"}
           </Button>
         </form>
       </div>

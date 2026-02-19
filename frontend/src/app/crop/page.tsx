@@ -8,9 +8,13 @@ import { FileDropzone } from "@/components/FileDropzone";
 import { uploadJobsWithProgress, getQueueStats } from "@/lib/api";
 import { uploadErrorMessage } from "@/lib/uploadErrors";
 
-export default function RestorePage() {
+export default function CropPage() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
+  const [x, setX] = useState("0");
+  const [y, setY] = useState("0");
+  const [width, setWidth] = useState("100");
+  const [height, setHeight] = useState("100");
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +42,14 @@ export default function RestorePage() {
       setError("Select at least one image");
       return;
     }
+    const xi = parseInt(x, 10);
+    const yi = parseInt(y, 10);
+    const wi = parseInt(width, 10);
+    const hi = parseInt(height, 10);
+    if (Number.isNaN(xi) || xi < 0 || Number.isNaN(yi) || yi < 0 || Number.isNaN(wi) || wi < 1 || Number.isNaN(hi) || hi < 1) {
+      setError("x and y must be ≥ 0; width and height must be ≥ 1");
+      return;
+    }
     setError(null);
     setErrorRequestId(null);
     submittingRef.current = true;
@@ -48,7 +60,8 @@ export default function RestorePage() {
         files,
         {
           scale: 1,
-          method: "restore",
+          method: "crop",
+          options: { x: xi, y: yi, width: wi, height: hi },
         },
         (percent) => setUploadProgress(percent)
       );
@@ -75,10 +88,10 @@ export default function RestorePage() {
           ← Back
         </Link>
         <h1 className="text-3xl font-bold text-foreground mb-6">
-          Restore & colorize
+          Crop
         </h1>
         <p className="text-muted-foreground mb-6">
-          Restore old or damaged photos and add color to black-and-white images. Uses AI for face restoration and optional colorization.
+          Crop images by specifying top-left corner (x, y) and size (width, height) in pixels. Crops are clamped to image bounds.
         </p>
         {(queueStats.queued > 0 || queueStats.processing > 0) && (
           <p className="mb-4 text-sm text-muted-foreground">
@@ -91,6 +104,50 @@ export default function RestorePage() {
             maxFiles={10}
             className="mb-4"
           />
+          <div className="rounded-2xl bg-card border border-border p-5 shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">X</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={x}
+                  onChange={(e) => setX(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Y</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={y}
+                  onChange={(e) => setY(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Width</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Height</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
+                />
+              </div>
+            </div>
+          </div>
           {uploadProgress != null && (
             <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
               <div
@@ -132,7 +189,7 @@ export default function RestorePage() {
               ? uploadProgress != null
                 ? `Uploading… ${uploadProgress}%`
                 : "Uploading…"
-              : "Restore & colorize"}
+              : "Crop"}
           </Button>
         </form>
       </div>

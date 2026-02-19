@@ -147,8 +147,8 @@ export function FileDropzone({
         className={`
           flex flex-col items-center justify-center w-full min-h-[220px] rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200
           ${isDragging
-            ? "border-violet-400 dark:border-violet-500 bg-gradient-to-br from-violet-50/80 to-fuchsia-50/80 dark:from-violet-950/50 dark:to-fuchsia-950/40 shadow-inner"
-            : "border-neutral-200 dark:border-zinc-600 bg-white/60 dark:bg-zinc-800/50 backdrop-blur-sm hover:border-violet-200 dark:hover:border-violet-500/60 hover:bg-white/80 dark:hover:bg-zinc-800/70"
+            ? "border-primary bg-accent/50 shadow-inner"
+            : "border-input bg-muted/50 backdrop-blur-sm hover:border-primary/50 hover:bg-muted"
           }
         `}
       >
@@ -159,19 +159,19 @@ export function FileDropzone({
           onChange={handleChange}
           className="hidden"
         />
-        <p className="text-sm text-neutral-500 dark:text-zinc-400 text-center px-4">
+        <p className="text-sm text-muted-foreground text-center px-4">
           Drag and drop images here, or click to select (max {maxFiles} files)
         </p>
       </label>
       {listItems.length > 0 && (
-        <ul className="mt-3 space-y-3 text-sm rounded-xl bg-white/60 dark:bg-zinc-800/50 backdrop-blur-sm border border-white/80 dark:border-zinc-700/80 p-3">
+        <ul className="mt-3 space-y-3 text-sm rounded-xl bg-card border border-border p-3">
           {listItems.map((item, i) => (
             <li
               key={`${item.file.name}-${i}`}
-              className="flex items-center gap-3 text-neutral-700 dark:text-zinc-300"
+              className="flex items-center gap-3 text-foreground"
             >
               {showPreview && item.previewUrl ? (
-                <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-neutral-200 dark:bg-zinc-700">
+                <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element -- blob URL from createObjectURL */}
                   <img
                     src={item.previewUrl}
@@ -182,7 +182,7 @@ export function FileDropzone({
               ) : null}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{item.file.name}</p>
-                <p className="text-xs text-neutral-500 dark:text-zinc-400">
+                <p className="text-xs text-muted-foreground">
                   {formatFileSize(item.size)}
                   {item.dimensions
                     ? ` · ${item.dimensions.w}×${item.dimensions.h}`

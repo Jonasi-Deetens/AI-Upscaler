@@ -28,12 +28,12 @@ export function Toggle<T extends string>({
   return (
     <fieldset className={className}>
       {label && (
-        <legend className="text-sm font-medium text-neutral-800 dark:text-zinc-200 mb-3">
+        <legend className="text-sm font-medium text-foreground mb-3">
           {label}
         </legend>
       )}
       <div
-        className="inline-flex gap-2 p-1 rounded-xl bg-white dark:bg-zinc-800 border border-neutral-200/80 dark:border-zinc-700/80"
+        className="inline-flex gap-2 p-1 rounded-xl bg-muted border border-border"
         role="group"
         aria-label={label}
       >
@@ -48,10 +48,10 @@ export function Toggle<T extends string>({
               aria-label={opt.label}
               onClick={() => onChange(opt.value)}
               className={cn(
-                "px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-100 dark:focus-visible:ring-offset-zinc-800",
+                "px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 isActive
-                  ? "gradient-ai text-white shadow-sm"
-                  : "text-neutral-600 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-200 hover:bg-neutral-200/60 dark:hover:bg-zinc-700/80"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               {opt.label}

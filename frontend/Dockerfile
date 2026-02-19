@@ -2,7 +2,8 @@ FROM node:20-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
+# Copy both files so Docker invalidates this layer when deps change. No asterisk = fail fast if lockfile missing.
+COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM base AS builder

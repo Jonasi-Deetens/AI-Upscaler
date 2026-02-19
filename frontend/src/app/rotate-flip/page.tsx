@@ -8,9 +8,19 @@ import { FileDropzone } from "@/components/FileDropzone";
 import { uploadJobsWithProgress, getQueueStats } from "@/lib/api";
 import { uploadErrorMessage } from "@/lib/uploadErrors";
 
-export default function RestorePage() {
+const ROTATE_OPTIONS: { value: 0 | 90 | 180 | 270; label: string }[] = [
+  { value: 0, label: "No rotation" },
+  { value: 90, label: "90° clockwise" },
+  { value: 180, label: "180°" },
+  { value: 270, label: "270° clockwise (90° counter-clockwise)" },
+];
+
+export default function RotateFlipPage() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
+  const [rotate, setRotate] = useState<0 | 90 | 180 | 270>(0);
+  const [flipH, setFlipH] = useState(false);
+  const [flipV, setFlipV] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +58,8 @@ export default function RestorePage() {
         files,
         {
           scale: 1,
-          method: "restore",
+          method: "rotate_flip",
+          options: { rotate, flip_h: flipH, flip_v: flipV },
         },
         (percent) => setUploadProgress(percent)
       );
@@ -75,10 +86,10 @@ export default function RestorePage() {
           ← Back
         </Link>
         <h1 className="text-3xl font-bold text-foreground mb-6">
-          Restore & colorize
+          Rotate & flip
         </h1>
         <p className="text-muted-foreground mb-6">
-          Restore old or damaged photos and add color to black-and-white images. Uses AI for face restoration and optional colorization.
+          Rotate images by 90°, 180°, or 270°, and optionally flip horizontally or vertically.
         </p>
         {(queueStats.queued > 0 || queueStats.processing > 0) && (
           <p className="mb-4 text-sm text-muted-foreground">
@@ -91,6 +102,44 @@ export default function RestorePage() {
             maxFiles={10}
             className="mb-4"
           />
+          <div className="rounded-2xl bg-card border border-border p-5 shadow-sm space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Rotation
+              </label>
+              <select
+                value={rotate}
+                onChange={(e) => setRotate(Number(e.target.value) as 0 | 90 | 180 | 270)}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
+              >
+                {ROTATE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-6">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={flipH}
+                  onChange={(e) => setFlipH(e.target.checked)}
+                  className="rounded border-input"
+                />
+                <span className="text-sm text-foreground">Flip horizontally</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={flipV}
+                  onChange={(e) => setFlipV(e.target.checked)}
+                  className="rounded border-input"
+                />
+                <span className="text-sm text-foreground">Flip vertically</span>
+              </label>
+            </div>
+          </div>
           {uploadProgress != null && (
             <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
               <div
@@ -132,7 +181,7 @@ export default function RestorePage() {
               ? uploadProgress != null
                 ? `Uploading… ${uploadProgress}%`
                 : "Uploading…"
-              : "Restore & colorize"}
+              : "Rotate & flip"}
           </Button>
         </form>
       </div>

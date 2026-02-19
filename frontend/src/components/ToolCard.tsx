@@ -11,7 +11,7 @@ interface ToolCardProps {
 
 export function ToolCard({ tool }: ToolCardProps) {
   return (
-    <li className="flex flex-col items-center rounded-xl bg-card p-5 transition-colors">
+    <li className="flex flex-col items-center rounded-xl bg-card transition-colors">
       <Button asChild variant="iconTile" size="md" className="mb-3">
         <Link href={tool.href}>
           <ToolIcon icon={tool.icon} className="size-6" />

@@ -7,7 +7,34 @@ from pathlib import Path
 import shutil
 
 from app.config import settings
-from app.processors import auto_levels, background_remove, blur_sharpen, border, brightness_contrast, collage, color_balance, convert, crop, denoise, face_enhance, filters, image_to_pdf, rename, resize, restore, rotate_flip, saturation, strip_metadata, watermark
+from app.processors import (
+    auto_levels,
+    background_blur,
+    background_remove,
+    blur_sharpen,
+    border,
+    brightness_contrast,
+    collage,
+    color_balance,
+    convert,
+    crop,
+    denoise,
+    face_enhance,
+    filters,
+    image_to_pdf,
+    inpaint,
+    pixelate,
+    rename,
+    resize,
+    restore,
+    rotate_flip,
+    saturation,
+    smart_crop,
+    strip_metadata,
+    tilt_shift,
+    vignette,
+    watermark,
+)
 from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
@@ -103,6 +130,30 @@ def _run_image_to_pdf(job, input_path: Path, output_path: Path) -> None:
     image_to_pdf.run(job, input_path, output_path)
 
 
+def _run_vignette(job, input_path: Path, output_path: Path) -> None:
+    vignette.run(job, input_path, output_path)
+
+
+def _run_tilt_shift(job, input_path: Path, output_path: Path) -> None:
+    tilt_shift.run(job, input_path, output_path)
+
+
+def _run_pixelate(job, input_path: Path, output_path: Path) -> None:
+    pixelate.run(job, input_path, output_path)
+
+
+def _run_smart_crop(job, input_path: Path, output_path: Path) -> None:
+    smart_crop.run(job, input_path, output_path)
+
+
+def _run_background_blur(job, input_path: Path, output_path: Path) -> None:
+    background_blur.run(job, input_path, output_path)
+
+
+def _run_inpaint(job, input_path: Path, output_path: Path) -> None:
+    inpaint.run(job, input_path, output_path)
+
+
 def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -162,6 +213,12 @@ METHOD_RUNNERS: dict = {
     "border": _run_border,
     "collage": _run_collage,
     "image_to_pdf": _run_image_to_pdf,
+    "vignette": _run_vignette,
+    "tilt_shift": _run_tilt_shift,
+    "pixelate": _run_pixelate,
+    "smart_crop": _run_smart_crop,
+    "background_blur": _run_background_blur,
+    "inpaint": _run_inpaint,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,

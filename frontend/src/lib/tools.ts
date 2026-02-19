@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "vignette" | "tilt-shift" | "pixelate" | "smart-crop" | "background-blur" | "inpaint" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -32,5 +32,11 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "border", href: "/border", title: "Border", description: "Add padding or frame.", icon: "border" },
   { id: "collage", href: "/collage", title: "Collage", description: "Grid layout from multiple images.", icon: "collage" },
   { id: "image-to-pdf", href: "/image-to-pdf", title: "Image to PDF", description: "Combine images into one PDF.", icon: "image-to-pdf" },
+  { id: "vignette", href: "/vignette", title: "Vignette", description: "Darken corners with radial falloff.", icon: "vignette" },
+  { id: "tilt-shift", href: "/tilt-shift", title: "Tilt-shift", description: "Fake miniature with gradient blur.", icon: "tilt-shift" },
+  { id: "pixelate", href: "/pixelate", title: "Pixelate", description: "Mosaic effect or privacy blur.", icon: "pixelate" },
+  { id: "smart-crop", href: "/smart-crop", title: "Smart crop", description: "Crop to ratio keeping important region.", icon: "smart-crop" },
+  { id: "background-blur", href: "/background-blur", title: "Portrait blur", description: "Blur background, keep subject sharp.", icon: "background-blur" },
+  { id: "inpaint", href: "/inpaint", title: "Inpaint", description: "Content-aware fill from a mask.", icon: "inpaint" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

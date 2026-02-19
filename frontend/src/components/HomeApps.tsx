@@ -24,7 +24,7 @@ export function HomeApps({ tools }: HomeAppsProps) {
 
   return (
     <section className="max-w-6xl h-full w-full flex flex-col gap-4">
-      <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-label="Apps">
+      <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3" aria-label="Apps">
         {filtered.map((tool) => (
           <ToolCard key={tool.id} tool={tool} />
         ))}

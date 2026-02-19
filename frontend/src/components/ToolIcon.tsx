@@ -24,6 +24,12 @@ import {
   Square,
   LayoutGrid,
   FileText,
+  Circle,
+  Camera,
+  Grid3x3,
+  ScanLine,
+  CircleUser,
+  Paintbrush,
 } from "lucide-react";
 import { ColoredIcon, type IconColor } from "@/components/ColoredIcon";
 
@@ -49,6 +55,12 @@ export type ToolIconId =
   | "border"
   | "collage"
   | "image-to-pdf"
+  | "vignette"
+  | "tilt-shift"
+  | "pixelate"
+  | "smart-crop"
+  | "background-blur"
+  | "inpaint"
   | "jobs";
 
 const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
@@ -73,6 +85,12 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   border: { icon: Square, color: "indigo" },
   collage: { icon: LayoutGrid, color: "emerald" },
   "image-to-pdf": { icon: FileText, color: "orange" },
+  vignette: { icon: Circle, color: "zinc" },
+  "tilt-shift": { icon: Camera, color: "indigo" },
+  pixelate: { icon: Grid3x3, color: "rose" },
+  "smart-crop": { icon: ScanLine, color: "cyan" },
+  "background-blur": { icon: CircleUser, color: "emerald" },
+  inpaint: { icon: Paintbrush, color: "amber" },
   jobs: { icon: ClipboardList, color: "primary" },
 };
 

@@ -165,6 +165,12 @@ def upscale_task(job_id: str) -> None:
                 "border": "Border",
                 "collage": "Collage",
                 "image_to_pdf": "Image to PDF",
+                "vignette": "Vignette",
+                "tilt_shift": "Tilt-shift",
+                "pixelate": "Pixelate",
+                "smart_crop": "Smart crop",
+                "background_blur": "Portrait blur",
+                "inpaint": "Inpaint",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == "convert":

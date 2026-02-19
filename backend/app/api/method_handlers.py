@@ -729,6 +729,196 @@ def _download_info_image_to_pdf(job) -> tuple[str, str]:
     return "document.pdf", "application/pdf"
 
 
+def _validate_vignette(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        strength = int(opts.get("strength", 50))
+        if strength < 0 or strength > 100:
+            raise HTTPException(400, detail="strength must be between 0 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="strength must be an integer between 0 and 100")
+    try:
+        radius = int(opts.get("radius", 70))
+        if radius < 0 or radius > 100:
+            raise HTTPException(400, detail="radius must be between 0 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="radius must be an integer between 0 and 100")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"strength": strength, "radius": radius},
+    }
+
+
+def _download_info_vignette(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_vignette.png", "image/png"
+
+
+def _validate_tilt_shift(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        blur_radius = int(opts.get("blur_radius", 15))
+        if blur_radius < 2 or blur_radius > 80:
+            raise HTTPException(400, detail="blur_radius must be between 2 and 80")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="blur_radius must be an integer between 2 and 80")
+    try:
+        focus_center = float(opts.get("focus_center", 0.5))
+        if focus_center < 0 or focus_center > 1:
+            raise HTTPException(400, detail="focus_center must be between 0 and 1")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="focus_center must be a number between 0 and 1")
+    try:
+        focus_width = float(opts.get("focus_width", 0.3))
+        if focus_width < 0.05 or focus_width > 1:
+            raise HTTPException(400, detail="focus_width must be between 0.05 and 1")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="focus_width must be a number between 0.05 and 1")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"blur_radius": blur_radius, "focus_center": focus_center, "focus_width": focus_width},
+    }
+
+
+def _download_info_tilt_shift(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_tilt_shift.png", "image/png"
+
+
+def _validate_pixelate(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        block_size = int(opts.get("block_size", 8))
+        if block_size < 2 or block_size > 128:
+            raise HTTPException(400, detail="block_size must be between 2 and 128")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="block_size must be an integer between 2 and 128")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"block_size": block_size},
+    }
+
+
+def _download_info_pixelate(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_pixelated.png", "image/png"
+
+
+def _validate_smart_crop(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        width = int(opts.get("width", 0))
+        height = int(opts.get("height", 0))
+        aspect_ratio = opts.get("aspect_ratio")
+        if aspect_ratio is not None:
+            aspect_ratio = float(aspect_ratio)
+            if aspect_ratio < 0.1 or aspect_ratio > 10:
+                raise HTTPException(400, detail="aspect_ratio must be between 0.1 and 10")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="width, height, and aspect_ratio must be numbers")
+    if width < 0 or height < 0:
+        raise HTTPException(400, detail="width and height must be non-negative")
+    if width == 0 and height == 0 and aspect_ratio is None:
+        raise HTTPException(400, detail="provide width, height, or aspect_ratio")
+    mode = (opts.get("mode") or "saliency").strip() or "saliency"
+    if mode not in ("center", "saliency"):
+        raise HTTPException(400, detail="mode must be 'center' or 'saliency'")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"width": width, "height": height, "aspect_ratio": aspect_ratio, "mode": mode},
+    }
+
+
+def _download_info_smart_crop(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_smart_crop.png", "image/png"
+
+
+def _validate_background_blur(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        blur_radius = int(opts.get("blur_radius", 25))
+        if blur_radius < 5 or blur_radius > 100:
+            raise HTTPException(400, detail="blur_radius must be between 5 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="blur_radius must be an integer between 5 and 100")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"blur_radius": blur_radius},
+    }
+
+
+def _download_info_background_blur(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_portrait.png", "image/png"
+
+
+def _validate_inpaint(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options or {},
+    }
+
+
+def _download_info_inpaint(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_inpainted.png", "image/png"
+
+
 # Registry: method -> (validate_fn, download_info_fn)
 METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "real_esrgan": (_validate_upscale, _download_info_upscale),
@@ -755,6 +945,12 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "border": (_validate_border, _download_info_border),
     "collage": (_validate_collage, _download_info_collage),
     "image_to_pdf": (_validate_image_to_pdf, _download_info_image_to_pdf),
+    "vignette": (_validate_vignette, _download_info_vignette),
+    "tilt_shift": (_validate_tilt_shift, _download_info_tilt_shift),
+    "pixelate": (_validate_pixelate, _download_info_pixelate),
+    "smart_crop": (_validate_smart_crop, _download_info_smart_crop),
+    "background_blur": (_validate_background_blur, _download_info_background_blur),
+    "inpaint": (_validate_inpaint, _download_info_inpaint),
 }
 
 ALLOWED_METHODS = tuple(METHOD_HANDLERS.keys())

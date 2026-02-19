@@ -13,6 +13,10 @@ import {
   FileX,
   Wand2,
   ClipboardList,
+  Focus,
+  Sun,
+  Type,
+  FilePen,
 } from "lucide-react";
 import { ColoredIcon, type IconColor } from "@/components/ColoredIcon";
 
@@ -27,6 +31,10 @@ export type ToolIconId =
   | "crop"
   | "strip-metadata"
   | "denoise"
+  | "blur-sharpen"
+  | "brightness-contrast"
+  | "watermark"
+  | "rename"
   | "jobs";
 
 const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
@@ -40,6 +48,10 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   crop: { icon: Crop, color: "rose" },
   "strip-metadata": { icon: FileX, color: "zinc" },
   denoise: { icon: Wand2, color: "teal" },
+  "blur-sharpen": { icon: Focus, color: "indigo" },
+  "brightness-contrast": { icon: Sun, color: "amber" },
+  watermark: { icon: Type, color: "blue" },
+  rename: { icon: FilePen, color: "zinc" },
   jobs: { icon: ClipboardList, color: "primary" },
 };
 

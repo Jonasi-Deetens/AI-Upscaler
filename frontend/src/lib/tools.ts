@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -21,5 +21,9 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "crop", href: "/crop", title: "Crop", description: "Crop by x, y, width, height.", icon: "crop" },
   { id: "strip-metadata", href: "/strip-metadata", title: "Strip metadata", description: "Remove EXIF and metadata.", icon: "strip-metadata" },
   { id: "denoise", href: "/denoise", title: "Denoise", description: "Reduce image noise (AI-free).", icon: "denoise" },
+  { id: "blur-sharpen", href: "/blur-sharpen", title: "Blur / Sharpen", description: "Gaussian blur or unsharp mask.", icon: "blur-sharpen" },
+  { id: "brightness-contrast", href: "/brightness-contrast", title: "Brightness & contrast", description: "Adjust brightness and contrast.", icon: "brightness-contrast" },
+  { id: "watermark", href: "/watermark", title: "Watermark", description: "Add text overlay.", icon: "watermark" },
+  { id: "rename", href: "/rename", title: "Rename", description: "Add prefix to filenames.", icon: "rename" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

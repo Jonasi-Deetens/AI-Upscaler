@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 
 from app.config import settings
-from app.processors import background_remove, convert, crop, denoise, face_enhance, resize, restore, rotate_flip, strip_metadata
+from app.processors import background_remove, blur_sharpen, brightness_contrast, convert, crop, denoise, face_enhance, rename, resize, restore, rotate_flip, strip_metadata, watermark
 from app.upscalers import esrgan, real_esrgan, real_esrgan_anime, swinir
 
 METHOD_BACKGROUND_REMOVE = "background_remove"
@@ -59,6 +59,22 @@ def _run_denoise(job, input_path: Path, output_path: Path) -> None:
     denoise.run(input_path, output_path)
 
 
+def _run_blur_sharpen(job, input_path: Path, output_path: Path) -> None:
+    blur_sharpen.run(job, input_path, output_path)
+
+
+def _run_brightness_contrast(job, input_path: Path, output_path: Path) -> None:
+    brightness_contrast.run(job, input_path, output_path)
+
+
+def _run_watermark(job, input_path: Path, output_path: Path) -> None:
+    watermark.run(job, input_path, output_path)
+
+
+def _run_rename(job, input_path: Path, output_path: Path) -> None:
+    rename.run(job, input_path, output_path)
+
+
 def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -107,6 +123,10 @@ METHOD_RUNNERS: dict = {
     "crop": _run_crop,
     "strip_metadata": _run_strip_metadata,
     "denoise": _run_denoise,
+    "blur_sharpen": _run_blur_sharpen,
+    "brightness_contrast": _run_brightness_contrast,
+    "watermark": _run_watermark,
+    "rename": _run_rename,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,

@@ -5,6 +5,7 @@ Upload endpoint uses VALIDATORS and get_download_info; no if/elif in jobs.py.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from fastapi import HTTPException
@@ -285,6 +286,142 @@ def _validate_denoise(
     }
 
 
+BLUR_SHARPEN_MODES = ("blur", "sharpen")
+
+
+def _validate_blur_sharpen(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    mode = opts.get("mode", "blur")
+    if mode not in BLUR_SHARPEN_MODES:
+        raise HTTPException(400, detail=f"mode must be one of: {', '.join(BLUR_SHARPEN_MODES)}")
+    radius = 3
+    strength = 1.5
+    if mode == "blur":
+        r = opts.get("radius", 3)
+        try:
+            radius = int(r) if r is not None else 3
+            if radius < 1 or radius > 50:
+                raise HTTPException(400, detail="radius must be between 1 and 50")
+        except (TypeError, ValueError):
+            raise HTTPException(400, detail="radius must be an integer between 1 and 50")
+    else:
+        s = opts.get("strength", 1.5)
+        try:
+            strength = float(s) if s is not None else 1.5
+            if strength < 0.5 or strength > 5:
+                raise HTTPException(400, detail="strength must be between 0.5 and 5")
+        except (TypeError, ValueError):
+            raise HTTPException(400, detail="strength must be a number between 0.5 and 5")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"mode": mode, "radius": radius, "strength": strength},
+    }
+
+
+def _validate_brightness_contrast(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    try:
+        brightness = int(opts.get("brightness", 0))
+        if brightness < -100 or brightness > 100:
+            raise HTTPException(400, detail="brightness must be between -100 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="brightness must be an integer between -100 and 100")
+    try:
+        contrast = int(opts.get("contrast", 100))
+        if contrast < 0 or contrast > 200:
+            raise HTTPException(400, detail="contrast must be between 0 and 200")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="contrast must be an integer between 0 and 200")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"brightness": brightness, "contrast": contrast},
+    }
+
+
+WATERMARK_POSITIONS = ("center", "top_left", "top_right", "bottom_left", "bottom_right")
+
+
+def _validate_watermark(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    text = opts.get("text", "").strip() if opts.get("text") else ""
+    if not text:
+        raise HTTPException(400, detail="text is required for watermark")
+    position = (opts.get("position") or "center").strip() or "center"
+    if position not in WATERMARK_POSITIONS:
+        raise HTTPException(400, detail=f"position must be one of: {', '.join(WATERMARK_POSITIONS)}")
+    try:
+        opacity = int(opts.get("opacity", 80))
+        if opacity < 0 or opacity > 100:
+            raise HTTPException(400, detail="opacity must be between 0 and 100")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="opacity must be an integer between 0 and 100")
+    try:
+        font_size = int(opts.get("font_size", 36))
+        if font_size < 12 or font_size > 120:
+            raise HTTPException(400, detail="font_size must be between 12 and 120")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="font_size must be an integer between 12 and 120")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"text": text, "position": position, "opacity": opacity, "font_size": font_size},
+    }
+
+
+def _sanitize_prefix(prefix: str) -> str:
+    """Allow only alphanumeric, underscore, hyphen for safe filenames."""
+    return re.sub(r"[^\w\-]", "_", prefix).strip("_") or ""
+
+
+def _validate_rename(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    raw = (opts.get("prefix") or "").strip()
+    prefix = _sanitize_prefix(raw) if raw else ""
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"prefix": prefix},
+    }
+
+
 # ---- download_info: (download_filename, media_type) ----
 
 def _download_info_convert(job) -> tuple[str, str]:
@@ -331,6 +468,34 @@ def _download_info_denoise(job) -> tuple[str, str]:
     return f"{_base_name(job)}_denoised.png", "image/png"
 
 
+def _download_info_blur_sharpen(job) -> tuple[str, str]:
+    base = _base_name(job)
+    opts = getattr(job, "options", None) or {}
+    suffix = "sharpened" if opts.get("mode") == "sharpen" else "blurred"
+    return f"{base}_{suffix}.png", "image/png"
+
+
+def _download_info_brightness_contrast(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_adjusted.png", "image/png"
+
+
+def _download_info_watermark(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_watermarked.png", "image/png"
+
+
+def _download_info_rename(job) -> tuple[str, str]:
+    """Worker outputs PNG; download name uses prefix + base name with .png."""
+    base = _base_name(job)
+    opts = getattr(job, "options", None) or {}
+    prefix = (opts.get("prefix") or "").strip()
+    prefix = _sanitize_prefix(prefix) if prefix else ""
+    if prefix:
+        download_name = f"{prefix}_{base}.png"
+    else:
+        download_name = f"{base}_renamed.png"
+    return download_name, "image/png"
+
+
 # Registry: method -> (validate_fn, download_info_fn)
 METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "real_esrgan": (_validate_upscale, _download_info_upscale),
@@ -346,6 +511,10 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "crop": (_validate_crop, _download_info_crop),
     "strip_metadata": (_validate_strip_metadata, _download_info_strip_metadata),
     "denoise": (_validate_denoise, _download_info_denoise),
+    "blur_sharpen": (_validate_blur_sharpen, _download_info_blur_sharpen),
+    "brightness_contrast": (_validate_brightness_contrast, _download_info_brightness_contrast),
+    "watermark": (_validate_watermark, _download_info_watermark),
+    "rename": (_validate_rename, _download_info_rename),
 }
 
 ALLOWED_METHODS = tuple(METHOD_HANDLERS.keys())

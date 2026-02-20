@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "vignette" | "tilt-shift" | "pixelate" | "smart-crop" | "background-blur" | "inpaint" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "vignette" | "tilt-shift" | "pixelate" | "smart-crop" | "background-blur" | "inpaint" | "word-counter" | "password-generator" | "qr-code" | "pdf-merge-split" | "lorem-ipsum" | "color-picker" | "json-formatter" | "base64" | "uuid-generator" | "regex-tester" | "timestamp-converter" | "hash" | "markdown-preview" | "random-picker" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -38,5 +38,19 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "smart-crop", href: "/smart-crop", title: "Smart crop", description: "Crop to ratio keeping important region.", icon: "smart-crop" },
   { id: "background-blur", href: "/background-blur", title: "Portrait blur", description: "Blur background, keep subject sharp.", icon: "background-blur" },
   { id: "inpaint", href: "/inpaint", title: "Inpaint", description: "Content-aware fill from a mask.", icon: "inpaint" },
+  { id: "word-counter", href: "/word-counter", title: "Word counter", description: "Words, characters, reading time.", icon: "word-counter" },
+  { id: "password-generator", href: "/password-generator", title: "Password generator", description: "Strong random passwords.", icon: "password-generator" },
+  { id: "qr-code", href: "/qr-code", title: "QR code", description: "Generate QR from text or URL.", icon: "qr-code" },
+  { id: "pdf-merge-split", href: "/pdf-merge-split", title: "PDF merge/split", description: "Merge PDFs or split by pages.", icon: "pdf-merge-split" },
+  { id: "lorem-ipsum", href: "/lorem-ipsum", title: "Lorem ipsum", description: "Placeholder text generator.", icon: "lorem-ipsum" },
+  { id: "color-picker", href: "/color-picker", title: "Color picker", description: "Hex, RGB, HSL and copy.", icon: "color-picker" },
+  { id: "json-formatter", href: "/json-formatter", title: "JSON formatter", description: "Format, minify, validate.", icon: "json-formatter" },
+  { id: "base64", href: "/base64", title: "Base64", description: "Encode or decode text.", icon: "base64" },
+  { id: "uuid-generator", href: "/uuid-generator", title: "UUID generator", description: "Generate UUID v4.", icon: "uuid-generator" },
+  { id: "regex-tester", href: "/regex-tester", title: "Regex tester", description: "Test regex and see matches.", icon: "regex-tester" },
+  { id: "timestamp-converter", href: "/timestamp-converter", title: "Timestamp", description: "Unix and date conversion.", icon: "timestamp-converter" },
+  { id: "hash", href: "/hash", title: "Hash", description: "SHA-256 and SHA-512.", icon: "hash" },
+  { id: "markdown-preview", href: "/markdown-preview", title: "Markdown preview", description: "Render markdown live.", icon: "markdown-preview" },
+  { id: "random-picker", href: "/random-picker", title: "Random picker", description: "Pick from list or roll dice.", icon: "random-picker" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

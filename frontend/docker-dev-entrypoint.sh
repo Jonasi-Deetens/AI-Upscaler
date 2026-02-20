@@ -4,6 +4,8 @@ set -e
 NEED_CI=false
 if [ ! -d node_modules/next ]; then
   NEED_CI=true
+elif [ ! -d node_modules/react-markdown ]; then
+  NEED_CI=true
 elif [ ! -f node_modules/.ci-done ]; then
   NEED_CI=true
 else

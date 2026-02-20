@@ -23,6 +23,7 @@ from app.processors import (
     filters,
     image_to_pdf,
     inpaint,
+    pdf_merge_split,
     pixelate,
     rename,
     resize,
@@ -154,6 +155,10 @@ def _run_inpaint(job, input_path: Path, output_path: Path) -> None:
     inpaint.run(job, input_path, output_path)
 
 
+def _run_pdf_merge_split(job, input_path: Path, output_path: Path) -> None:
+    pdf_merge_split.run(job, input_path, output_path)
+
+
 def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -219,6 +224,7 @@ METHOD_RUNNERS: dict = {
     "smart_crop": _run_smart_crop,
     "background_blur": _run_background_blur,
     "inpaint": _run_inpaint,
+    "pdf_merge_split": _run_pdf_merge_split,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,

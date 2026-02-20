@@ -88,8 +88,10 @@ def upscale_task(job_id: str) -> None:
             tmp = Path(tmpdir)
             opts = getattr(job, "options", None) or {}
             multi_count = opts.get("_input_count", 1)
+            # Multi-input jobs store files at originals/{job_id}/0, 1, ... (original_key is the dir)
+            is_multi_input = "_input_count" in opts
 
-            if multi_count > 1:
+            if is_multi_input:
                 _update_job_status(
                     job_id, JOB_STATUS_PROCESSING, status_detail="Downloading images…", progress=15
                 )
@@ -97,7 +99,12 @@ def upscale_task(job_id: str) -> None:
                     key = f"originals/{job_id}/{i}"
                     storage.get_to_file(key, tmp / str(i))
                 input_path = tmp
-                output_path = tmp / "output.pdf" if job.method == "image_to_pdf" else tmp / "output.png"
+                if job.method == "image_to_pdf":
+                    output_path = tmp / "output.pdf"
+                elif job.method == "pdf_merge_split":
+                    output_path = tmp / "output.zip" if opts.get("action") == "split" else tmp / "output.pdf"
+                else:
+                    output_path = tmp / "output.png"
             else:
                 input_path = tmp / "input"
                 output_path = tmp / "output.png"
@@ -171,6 +178,7 @@ def upscale_task(job_id: str) -> None:
                 "smart_crop": "Smart crop",
                 "background_blur": "Portrait blur",
                 "inpaint": "Inpaint",
+                "pdf_merge_split": "PDF merge/split",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == "convert":

@@ -30,6 +30,19 @@ import {
   ScanLine,
   CircleUser,
   Paintbrush,
+  Key,
+  QrCode,
+  FileStack,
+  Quote,
+  Pipette,
+  Braces,
+  Binary,
+  FingerprintPattern,
+  Regex,
+  Clock,
+  Hash,
+  BookOpen,
+  Dices,
 } from "lucide-react";
 import { ColoredIcon, type IconColor } from "@/components/ColoredIcon";
 
@@ -61,6 +74,20 @@ export type ToolIconId =
   | "smart-crop"
   | "background-blur"
   | "inpaint"
+  | "word-counter"
+  | "password-generator"
+  | "qr-code"
+  | "pdf-merge-split"
+  | "lorem-ipsum"
+  | "color-picker"
+  | "json-formatter"
+  | "base64"
+  | "uuid-generator"
+  | "regex-tester"
+  | "timestamp-converter"
+  | "hash"
+  | "markdown-preview"
+  | "random-picker"
   | "jobs";
 
 const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
@@ -91,6 +118,20 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   "smart-crop": { icon: ScanLine, color: "cyan" },
   "background-blur": { icon: CircleUser, color: "emerald" },
   inpaint: { icon: Paintbrush, color: "amber" },
+  "word-counter": { icon: FileText, color: "blue" },
+  "password-generator": { icon: Key, color: "emerald" },
+  "qr-code": { icon: QrCode, color: "zinc" },
+  "pdf-merge-split": { icon: FileStack, color: "rose" },
+  "lorem-ipsum": { icon: Quote, color: "zinc" },
+  "color-picker": { icon: Pipette, color: "rose" },
+  "json-formatter": { icon: Braces, color: "amber" },
+  base64: { icon: Binary, color: "indigo" },
+  "uuid-generator": { icon: FingerprintPattern, color: "teal" },
+  "regex-tester": { icon: Regex, color: "violet" },
+  "timestamp-converter": { icon: Clock, color: "cyan" },
+  hash: { icon: Hash, color: "orange" },
+  "markdown-preview": { icon: BookOpen, color: "blue" },
+  "random-picker": { icon: Dices, color: "emerald" },
   jobs: { icon: ClipboardList, color: "primary" },
 };
 

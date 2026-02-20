@@ -4,7 +4,7 @@ FROM base AS deps
 WORKDIR /app
 # Copy both files so Docker invalidates this layer when deps change. No asterisk = fail fast if lockfile missing.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci && test -d node_modules/react-markdown || (echo "Missing react-markdown; run npm install in frontend and rebuild image with --no-cache" && exit 1)
 
 FROM base AS builder
 WORKDIR /app

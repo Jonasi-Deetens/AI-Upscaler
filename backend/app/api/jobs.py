@@ -127,7 +127,7 @@ def upload_jobs(
     filenames = [v[0] for v in valid]
     storage = get_storage()
 
-    MULTI_INPUT_METHODS = ("collage", "image_to_pdf", "inpaint")
+    MULTI_INPUT_METHODS = ("collage", "image_to_pdf", "inpaint", "pdf_merge_split")
     if method in MULTI_INPUT_METHODS:
         job = job_service.create_multi_input_job(
             db,

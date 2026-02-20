@@ -919,6 +919,35 @@ def _download_info_inpaint(job) -> tuple[str, str]:
     return f"{_base_name(job)}_inpainted.png", "image/png"
 
 
+def _validate_pdf_merge_split(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    action = (opts.get("action") or "merge").strip().lower()
+    if action not in ("merge", "split"):
+        raise HTTPException(400, detail="action must be 'merge' or 'split'")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"action": action},
+    }
+
+
+def _download_info_pdf_merge_split(job) -> tuple[str, str]:
+    opts = getattr(job, "options", None) or {}
+    action = (opts.get("action") or "merge").strip().lower()
+    if action == "split":
+        return "pages.zip", "application/zip"
+    return "merged.pdf", "application/pdf"
+
+
 # Registry: method -> (validate_fn, download_info_fn)
 METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "real_esrgan": (_validate_upscale, _download_info_upscale),
@@ -951,6 +980,7 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "smart_crop": (_validate_smart_crop, _download_info_smart_crop),
     "background_blur": (_validate_background_blur, _download_info_background_blur),
     "inpaint": (_validate_inpaint, _download_info_inpaint),
+    "pdf_merge_split": (_validate_pdf_merge_split, _download_info_pdf_merge_split),
 }
 
 ALLOWED_METHODS = tuple(METHOD_HANDLERS.keys())

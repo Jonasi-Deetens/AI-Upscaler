@@ -92,16 +92,19 @@ export function FileDropzone({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: react to file identity, not preview object refs
   }, [showPreview, fileKey]);
 
+  const isImageOnly = accept === "image/*" || !accept;
+
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      const items = Array.from(e.dataTransfer.files).filter((f) =>
-        f.type.startsWith("image/")
-      );
+      const raw = Array.from(e.dataTransfer.files);
+      const items = isImageOnly
+        ? raw.filter((f) => f.type.startsWith("image/"))
+        : raw;
       setFiles(items.slice(0, maxFiles));
     },
-    [maxFiles, setFiles]
+    [maxFiles, setFiles, isImageOnly]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -116,12 +119,13 @@ export function FileDropzone({
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const items = Array.from(e.target.files ?? []).filter((f) =>
-        f.type.startsWith("image/")
-      );
+      const raw = Array.from(e.target.files ?? []);
+      const items = isImageOnly
+        ? raw.filter((f) => f.type.startsWith("image/"))
+        : raw;
       setFiles(items.slice(0, maxFiles));
     },
-    [maxFiles, setFiles]
+    [maxFiles, setFiles, isImageOnly]
   );
 
   const removeFile = useCallback(
@@ -160,7 +164,9 @@ export function FileDropzone({
           className="hidden"
         />
         <p className="text-sm text-muted-foreground text-center px-4">
-          Drag and drop images here, or click to select (max {maxFiles} files)
+          {isImageOnly
+            ? `Drag and drop images here, or click to select (max ${maxFiles} files)`
+            : `Drag and drop files here, or click to select (max ${maxFiles} files)`}
         </p>
       </label>
       {listItems.length > 0 && (

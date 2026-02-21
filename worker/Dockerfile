@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     git \
     wget \
+    tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PyTorch CPU-only first (smaller download, less build memory than default CUDA wheels)

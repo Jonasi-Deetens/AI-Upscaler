@@ -27,7 +27,6 @@ import {
   Circle,
   Camera,
   Grid3x3,
-  ScanLine,
   CircleUser,
   Paintbrush,
   Key,
@@ -43,6 +42,33 @@ import {
   Hash,
   BookOpen,
   Dices,
+  FileDown,
+  FileImage,
+  CaseUpper,
+  RemoveFormatting,
+  Link,
+  GitCompare,
+  Replace,
+  FileCode,
+  Table2,
+  Code,
+  Shield,
+  Gauge,
+  Smartphone,
+  Ruler,
+  DollarSign,
+  Info,
+  Shuffle,
+  Smile,
+  MessageCircleQuestionMark,
+  Timer,
+  TimerReset,
+  StickyNote,
+  Link2,
+  ListOrdered,
+  ImagePlus,
+  ScanLine,
+  ScanText,
 } from "lucide-react";
 import { ColoredIcon, type IconColor } from "@/components/ColoredIcon";
 
@@ -88,6 +114,39 @@ export type ToolIconId =
   | "hash"
   | "markdown-preview"
   | "random-picker"
+  | "compress-pdf"
+  | "heic-to-jpg"
+  | "case-converter"
+  | "remove-spaces"
+  | "slug-generator"
+  | "diff"
+  | "find-replace"
+  | "yaml-json"
+  | "csv-json"
+  | "html-encode"
+  | "jwt-decoder"
+  | "cron-explainer"
+  | "number-base"
+  | "ascii-unicode"
+  | "url-parser"
+  | "password-strength"
+  | "otp-generator"
+  | "unit-converter"
+  | "currency-converter"
+  | "svg-to-png"
+  | "favicon-generator"
+  | "image-metadata"
+  | "random-number"
+  | "meme-text"
+  | "yes-no"
+  | "pomodoro"
+  | "countdown"
+  | "notepad"
+  | "url-encode"
+  | "duplicate-lines"
+  | "stopwatch"
+  | "base64-image"
+  | "qr-decode"
   | "jobs";
 
 const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
@@ -132,6 +191,40 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   hash: { icon: Hash, color: "orange" },
   "markdown-preview": { icon: BookOpen, color: "blue" },
   "random-picker": { icon: Dices, color: "emerald" },
+  "compress-pdf": { icon: FileDown, color: "rose" },
+  "heic-to-jpg": { icon: FileImage, color: "orange" },
+  "case-converter": { icon: CaseUpper, color: "violet" },
+  "remove-spaces": { icon: RemoveFormatting, color: "zinc" },
+  "slug-generator": { icon: Link, color: "cyan" },
+  diff: { icon: GitCompare, color: "amber" },
+  "find-replace": { icon: Replace, color: "teal" },
+  "yaml-json": { icon: FileCode, color: "amber" },
+  "csv-json": { icon: Table2, color: "cyan" },
+  "html-encode": { icon: Code, color: "orange" },
+  "jwt-decoder": { icon: Shield, color: "violet" },
+  "cron-explainer": { icon: Clock, color: "zinc" },
+  "number-base": { icon: Binary, color: "indigo" },
+  "ascii-unicode": { icon: Type, color: "blue" },
+  "url-parser": { icon: Link, color: "teal" },
+  "password-strength": { icon: Gauge, color: "emerald" },
+  "otp-generator": { icon: Smartphone, color: "rose" },
+  "unit-converter": { icon: Ruler, color: "cyan" },
+  "currency-converter": { icon: DollarSign, color: "emerald" },
+  "svg-to-png": { icon: FileImage, color: "violet" },
+  "favicon-generator": { icon: Image, color: "amber" },
+  "image-metadata": { icon: Info, color: "zinc" },
+  "random-number": { icon: Shuffle, color: "violet" },
+  "meme-text": { icon: Smile, color: "amber" },
+  "yes-no": { icon: MessageCircleQuestionMark, color: "indigo" },
+  pomodoro: { icon: Timer, color: "rose" },
+  countdown: { icon: TimerReset, color: "cyan" },
+  notepad: { icon: StickyNote, color: "emerald" },
+  "url-encode": { icon: Link2, color: "teal" },
+  "duplicate-lines": { icon: ListOrdered, color: "violet" },
+  stopwatch: { icon: Clock, color: "amber" },
+  "base64-image": { icon: ImagePlus, color: "blue" },
+  "qr-decode": { icon: ScanLine, color: "zinc" },
+  ocr: { icon: ScanText, color: "teal" },
   jobs: { icon: ClipboardList, color: "primary" },
 };
 

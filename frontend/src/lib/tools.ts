@@ -7,7 +7,7 @@ export interface HubTool {
   href: string;
   title: string;
   description: string;
-  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "vignette" | "tilt-shift" | "pixelate" | "smart-crop" | "background-blur" | "inpaint" | "word-counter" | "password-generator" | "qr-code" | "pdf-merge-split" | "lorem-ipsum" | "color-picker" | "json-formatter" | "base64" | "uuid-generator" | "regex-tester" | "timestamp-converter" | "hash" | "markdown-preview" | "random-picker" | "jobs";
+  icon: "upscale" | "remove-bg" | "convert" | "compress" | "restore" | "resize" | "rotate-flip" | "crop" | "strip-metadata" | "denoise" | "blur-sharpen" | "brightness-contrast" | "watermark" | "rename" | "auto-levels" | "saturation" | "color-balance" | "filters" | "border" | "collage" | "image-to-pdf" | "vignette" | "tilt-shift" | "pixelate" | "smart-crop" | "background-blur" | "inpaint" | "word-counter" | "password-generator" | "qr-code" | "pdf-merge-split" | "compress-pdf" | "heic-to-jpg" | "case-converter" | "remove-spaces" | "slug-generator" | "diff" | "find-replace" | "lorem-ipsum" | "color-picker" | "json-formatter" | "base64" | "uuid-generator" | "regex-tester" | "timestamp-converter" | "hash" | "markdown-preview" | "random-picker" | "yaml-json" | "csv-json" | "html-encode" | "jwt-decoder" | "cron-explainer" | "number-base" | "ascii-unicode" | "url-parser" | "password-strength" | "otp-generator" | "unit-converter" | "currency-converter" | "svg-to-png" | "favicon-generator" | "image-metadata" | "random-number" | "meme-text" | "yes-no" | "pomodoro" | "countdown" | "notepad" | "url-encode" | "duplicate-lines" | "stopwatch" | "base64-image" | "qr-decode" | "ocr" | "jobs";
 }
 
 export const HUB_TOOLS: HubTool[] = [
@@ -52,5 +52,39 @@ export const HUB_TOOLS: HubTool[] = [
   { id: "hash", href: "/hash", title: "Hash", description: "SHA-256 and SHA-512.", icon: "hash" },
   { id: "markdown-preview", href: "/markdown-preview", title: "Markdown preview", description: "Render markdown live.", icon: "markdown-preview" },
   { id: "random-picker", href: "/random-picker", title: "Random picker", description: "Pick from list or roll dice.", icon: "random-picker" },
+  { id: "compress-pdf", href: "/compress-pdf", title: "Compress PDF", description: "Reduce PDF file size.", icon: "compress-pdf" },
+  { id: "heic-to-jpg", href: "/heic-to-jpg", title: "HEIC to JPG", description: "Convert HEIC/HEIF to JPEG.", icon: "heic-to-jpg" },
+  { id: "case-converter", href: "/case-converter", title: "Case converter", description: "UPPER, lower, Title, camelCase, kebab, snake.", icon: "case-converter" },
+  { id: "remove-spaces", href: "/remove-spaces", title: "Remove spaces", description: "Trim and collapse spaces and newlines.", icon: "remove-spaces" },
+  { id: "slug-generator", href: "/slug-generator", title: "Slug generator", description: "Turn text into URL-friendly slugs.", icon: "slug-generator" },
+  { id: "diff", href: "/diff", title: "Diff", description: "Compare two texts side-by-side.", icon: "diff" },
+  { id: "find-replace", href: "/find-replace", title: "Find & replace", description: "Find and replace in text.", icon: "find-replace" },
+  { id: "yaml-json", href: "/yaml-json", title: "YAML ↔ JSON", description: "Convert YAML to JSON or JSON to YAML.", icon: "yaml-json" },
+  { id: "csv-json", href: "/csv-json", title: "CSV ↔ JSON", description: "Convert CSV to JSON or JSON to CSV.", icon: "csv-json" },
+  { id: "html-encode", href: "/html-encode", title: "HTML encode/decode", description: "Encode or decode HTML entities.", icon: "html-encode" },
+  { id: "jwt-decoder", href: "/jwt-decoder", title: "JWT decoder", description: "Decode JWT header and payload (read-only).", icon: "jwt-decoder" },
+  { id: "cron-explainer", href: "/cron-explainer", title: "Cron explainer", description: "What does this cron expression do?", icon: "cron-explainer" },
+  { id: "number-base", href: "/number-base", title: "Number base", description: "Convert between dec, hex, bin, oct.", icon: "number-base" },
+  { id: "ascii-unicode", href: "/ascii-unicode", title: "ASCII / Unicode", description: "Character ↔ code point lookup.", icon: "ascii-unicode" },
+  { id: "url-parser", href: "/url-parser", title: "URL parser", description: "Split URL into scheme, host, path, query.", icon: "url-parser" },
+  { id: "password-strength", href: "/password-strength", title: "Password strength", description: "Score and short feedback.", icon: "password-strength" },
+  { id: "otp-generator", href: "/otp-generator", title: "OTP / 2FA", description: "Time-based 6-digit code (TOTP).", icon: "otp-generator" },
+  { id: "unit-converter", href: "/unit-converter", title: "Unit converter", description: "Length, weight, temperature.", icon: "unit-converter" },
+  { id: "currency-converter", href: "/currency-converter", title: "Currency", description: "Convert with live exchange rates (API).", icon: "currency-converter" },
+  { id: "svg-to-png", href: "/svg-to-png", title: "SVG to PNG", description: "Convert SVG to PNG.", icon: "svg-to-png" },
+  { id: "favicon-generator", href: "/favicon-generator", title: "Favicon generator", description: "Upload image → favicon.ico sizes.", icon: "favicon-generator" },
+  { id: "image-metadata", href: "/image-metadata", title: "Image metadata", description: "EXIF, dimensions, format (read-only).", icon: "image-metadata" },
+  { id: "random-number", href: "/random-number", title: "Random number", description: "Min/max, integer or float.", icon: "random-number" },
+  { id: "meme-text", href: "/meme-text", title: "Meme text", description: "Mocking SpongeBob alternating case.", icon: "meme-text" },
+  { id: "yes-no", href: "/yes-no", title: "Yes / No 8-ball", description: "One button, random answer.", icon: "yes-no" },
+  { id: "pomodoro", href: "/pomodoro", title: "Pomodoro", description: "25 min work, 5 min break.", icon: "pomodoro" },
+  { id: "countdown", href: "/countdown", title: "Countdown", description: "Set minutes, count down.", icon: "countdown" },
+  { id: "notepad", href: "/notepad", title: "Notepad", description: "One persistent note (localStorage).", icon: "notepad" },
+  { id: "url-encode", href: "/url-encode", title: "URL encode/decode", description: "Percent-encode or decode query strings.", icon: "url-encode" },
+  { id: "duplicate-lines", href: "/duplicate-lines", title: "Duplicate line remover", description: "Remove duplicates, optional sort.", icon: "duplicate-lines" },
+  { id: "stopwatch", href: "/stopwatch", title: "Stopwatch", description: "Count up with laps.", icon: "stopwatch" },
+  { id: "base64-image", href: "/base64-image", title: "Base64 image decoder", description: "Paste data URL → preview and download.", icon: "base64-image" },
+  { id: "qr-decode", href: "/qr-decode", title: "QR code decoder", description: "Upload or paste image → decode QR.", icon: "qr-decode" },
+  { id: "ocr", href: "/ocr", title: "OCR", description: "Image or PDF → extracted text.", icon: "ocr" },
   { id: "jobs", href: "/jobs", title: "Jobs", description: "Status & downloads.", icon: "jobs" },
 ];

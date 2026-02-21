@@ -948,6 +948,115 @@ def _download_info_pdf_merge_split(job) -> tuple[str, str]:
     return "merged.pdf", "application/pdf"
 
 
+def _validate_compress_pdf(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _download_info_compress_pdf(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_compressed.pdf", "application/pdf"
+
+
+def _validate_heic_to_jpg(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _download_info_heic_to_jpg(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}.jpg", "image/jpeg"
+
+
+def _validate_svg_to_png(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _download_info_svg_to_png(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}.png", "image/png"
+
+
+def _validate_favicon(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _download_info_favicon(job) -> tuple[str, str]:
+    return "favicon.ico", "image/x-icon"
+
+
+def _validate_ocr(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options or {},
+    }
+
+
+def _download_info_ocr(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}.txt", "text/plain; charset=utf-8"
+
+
 # Registry: method -> (validate_fn, download_info_fn)
 METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "real_esrgan": (_validate_upscale, _download_info_upscale),
@@ -981,6 +1090,11 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "background_blur": (_validate_background_blur, _download_info_background_blur),
     "inpaint": (_validate_inpaint, _download_info_inpaint),
     "pdf_merge_split": (_validate_pdf_merge_split, _download_info_pdf_merge_split),
+    "compress_pdf": (_validate_compress_pdf, _download_info_compress_pdf),
+    "heic_to_jpg": (_validate_heic_to_jpg, _download_info_heic_to_jpg),
+    "svg_to_png": (_validate_svg_to_png, _download_info_svg_to_png),
+    "favicon": (_validate_favicon, _download_info_favicon),
+    "ocr": (_validate_ocr, _download_info_ocr),
 }
 
 ALLOWED_METHODS = tuple(METHOD_HANDLERS.keys())

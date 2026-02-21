@@ -16,13 +16,17 @@ from app.processors import (
     brightness_contrast,
     collage,
     color_balance,
+    compress_pdf,
     convert,
     crop,
     denoise,
     face_enhance,
+    favicon,
     filters,
+    heic_to_jpg,
     image_to_pdf,
     inpaint,
+    ocr,
     pdf_merge_split,
     pixelate,
     rename,
@@ -32,6 +36,7 @@ from app.processors import (
     saturation,
     smart_crop,
     strip_metadata,
+    svg_to_png,
     tilt_shift,
     vignette,
     watermark,
@@ -159,6 +164,26 @@ def _run_pdf_merge_split(job, input_path: Path, output_path: Path) -> None:
     pdf_merge_split.run(job, input_path, output_path)
 
 
+def _run_compress_pdf(job, input_path: Path, output_path: Path) -> None:
+    compress_pdf.run(job, input_path, output_path)
+
+
+def _run_heic_to_jpg(job, input_path: Path, output_path: Path) -> None:
+    heic_to_jpg.run(job, input_path, output_path)
+
+
+def _run_svg_to_png(job, input_path: Path, output_path: Path) -> None:
+    svg_to_png.run(job, input_path, output_path)
+
+
+def _run_favicon(job, input_path: Path, output_path: Path) -> None:
+    favicon.run(job, input_path, output_path)
+
+
+def _run_ocr(job, input_path: Path, output_path: Path) -> None:
+    ocr.run(job, input_path, output_path)
+
+
 def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -225,6 +250,11 @@ METHOD_RUNNERS: dict = {
     "background_blur": _run_background_blur,
     "inpaint": _run_inpaint,
     "pdf_merge_split": _run_pdf_merge_split,
+    "compress_pdf": _run_compress_pdf,
+    "heic_to_jpg": _run_heic_to_jpg,
+    "svg_to_png": _run_svg_to_png,
+    "favicon": _run_favicon,
+    "ocr": _run_ocr,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,

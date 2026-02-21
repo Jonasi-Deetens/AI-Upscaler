@@ -107,7 +107,16 @@ def upscale_task(job_id: str) -> None:
                     output_path = tmp / "output.png"
             else:
                 input_path = tmp / "input"
-                output_path = tmp / "output.png"
+                if job.method == "compress_pdf":
+                    output_path = tmp / "output.pdf"
+                elif job.method == "ocr":
+                    output_path = tmp / "output.txt"
+                elif job.method == "heic_to_jpg":
+                    output_path = tmp / "output.jpg"
+                elif job.method == "favicon":
+                    output_path = tmp / "output.ico"
+                else:
+                    output_path = tmp / "output.png"
                 _update_job_status(
                     job_id, JOB_STATUS_PROCESSING, status_detail="Downloading image…", progress=15
                 )
@@ -179,6 +188,11 @@ def upscale_task(job_id: str) -> None:
                 "background_blur": "Portrait blur",
                 "inpaint": "Inpaint",
                 "pdf_merge_split": "PDF merge/split",
+                "compress_pdf": "Compress PDF",
+                "heic_to_jpg": "HEIC to JPG",
+                "svg_to_png": "SVG to PNG",
+                "favicon": "Favicon generator",
+                "ocr": "OCR",
             }
             method_label = method_labels.get(job.method, job.method)
             if job.method == "convert":
@@ -199,6 +213,8 @@ def upscale_task(job_id: str) -> None:
                 detail = "Stripping metadata…"
             elif job.method == "denoise":
                 detail = "Denoising…"
+            elif job.method == "ocr":
+                detail = "Running OCR…"
             else:
                 detail = f"Running {method_label} ({job.scale}×) — may take several minutes…"
             _update_job_status(job_id, JOB_STATUS_PROCESSING, status_detail=detail, progress=25)

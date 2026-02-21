@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.api import admin, jobs
+from app.api import admin, jobs, currency
 from app.core.config import settings
 from app.core.database import engine
 from app.core.logging_config import configure_structured_logging
@@ -110,6 +110,7 @@ app.add_middleware(
 )
 
 app.include_router(jobs.router)
+app.include_router(currency.router)
 app.include_router(admin.router)
 
 

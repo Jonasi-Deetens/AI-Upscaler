@@ -19,6 +19,7 @@ export default function WordCounterPage() {
   const words = countWords(text);
   const chars = text.length;
   const charsNoSpaces = text.replace(/\s/g, "").length;
+  const bytesUtf8 = new TextEncoder().encode(text).length;
   const lines = text ? text.split(/\n/).length : 0;
   const readingMinutes = Math.ceil(words / WPM) || 0;
 
@@ -40,7 +41,7 @@ export default function WordCounterPage() {
         </Link>
         <h1 className="text-3xl font-bold text-foreground mb-6">Word counter</h1>
         <p className="text-muted-foreground mb-6">
-          Paste text to see word count, character count, and reading time (~{WPM} wpm).
+          Paste text to see word count, characters, bytes (UTF-8), and reading time (~{WPM} wpm).
         </p>
         <div className="space-y-4">
           <textarea
@@ -61,6 +62,10 @@ export default function WordCounterPage() {
             <div>
               <span className="text-sm text-muted-foreground">Characters (no spaces)</span>
               <p className="text-xl font-semibold text-foreground">{charsNoSpaces}</p>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">Bytes (UTF-8)</span>
+              <p className="text-xl font-semibold text-foreground">{bytesUtf8}</p>
             </div>
             <div>
               <span className="text-sm text-muted-foreground">Lines</span>

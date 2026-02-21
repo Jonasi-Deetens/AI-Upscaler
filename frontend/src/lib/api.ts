@@ -137,3 +137,17 @@ export async function retryJob(jobId: string): Promise<Job> {
   const res = await fetch(`${API_BASE}/api/jobs/${jobId}/retry`, { method: "POST" });
   return handleResponse<Job>(res);
 }
+
+/** Currency rates from backend (Frankfurter API). base e.g. "USD". */
+export interface CurrencyRates {
+  base: string;
+  date: string;
+  rates: Record<string, number>;
+}
+
+export async function getCurrencyRates(base: string): Promise<CurrencyRates> {
+  const res = await fetch(
+    `${API_BASE}/api/currency/rates?base=${encodeURIComponent(base)}`
+  );
+  return handleResponse<CurrencyRates>(res);
+}

@@ -8,10 +8,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-
-function cn(...classes: (string | undefined | false)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
+import { cn } from "@/lib/utils";
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";

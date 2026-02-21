@@ -67,7 +67,7 @@ export default function YesNoPage() {
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground"
             />
           </div>
-          <Button type="button" variant="primary" onClick={shake}>
+          <Button type="button" variant="cta" onClick={shake}>
             Shake
           </Button>
           {answer !== null && (

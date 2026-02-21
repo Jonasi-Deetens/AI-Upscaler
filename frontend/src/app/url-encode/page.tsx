@@ -110,7 +110,7 @@ export default function UrlEncodePage() {
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground font-mono text-sm"
             />
           </div>
-          <Button type="button" variant="primary" onClick={run}>
+          <Button type="button" variant="cta" onClick={run}>
             {mode === "encode" ? "Encode" : "Decode"}
           </Button>
           {error && (

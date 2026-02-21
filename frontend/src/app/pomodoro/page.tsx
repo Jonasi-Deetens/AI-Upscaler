@@ -76,7 +76,7 @@ export default function PomodoroPage() {
                 Pause
               </Button>
             ) : (
-              <Button type="button" variant="primary" onClick={start}>
+              <Button type="button" variant="cta" onClick={start}>
                 Start
               </Button>
             )}

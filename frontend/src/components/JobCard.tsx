@@ -23,6 +23,40 @@ const statusLabels: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
+/** Backend methods that have single image in + image out (before/after slider makes sense). */
+const METHODS_WITH_IMAGE_COMPARE = new Set([
+  "real_esrgan",
+  "swinir",
+  "esrgan",
+  "real_esrgan_anime",
+  "background_remove",
+  "convert",
+  "compress",
+  "restore",
+  "resize",
+  "rotate_flip",
+  "crop",
+  "strip_metadata",
+  "denoise",
+  "blur_sharpen",
+  "brightness_contrast",
+  "watermark",
+  "rename",
+  "auto_levels",
+  "saturation",
+  "color_balance",
+  "filters",
+  "border",
+  "vignette",
+  "tilt_shift",
+  "pixelate",
+  "smart_crop",
+  "background_blur",
+  "inpaint",
+  "heic_to_jpg",
+  "svg_to_png",
+]);
+
 function formatTime(iso: string | null): string {
   if (!iso) return "";
   try {
@@ -82,7 +116,11 @@ export function JobCard({ job, onCancelled, onRetried }: JobCardProps) {
 
   const canCancel = (job.status === "queued" || job.status === "processing") && onCancelled;
   const canRetry = job.status === "failed" && onRetried;
-  const showCompare = job.status === "completed" && job.result_key && job.original_key;
+  const showCompare =
+    job.status === "completed" &&
+    job.result_key != null &&
+    job.original_key != null &&
+    METHODS_WITH_IMAGE_COMPARE.has(job.method);
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-all">

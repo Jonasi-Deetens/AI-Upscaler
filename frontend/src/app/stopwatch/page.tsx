@@ -69,7 +69,7 @@ export default function StopwatchPage() {
                 <Button type="button" variant="ghost" onClick={lap}>Lap</Button>
               </>
             ) : (
-              <Button type="button" variant="primary" onClick={start}>Start</Button>
+              <Button type="button" variant="cta" onClick={start}>Start</Button>
             )}
             <Button type="button" variant="ghost" onClick={reset}>Reset</Button>
           </div>

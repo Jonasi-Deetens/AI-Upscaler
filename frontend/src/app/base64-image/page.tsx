@@ -99,7 +99,7 @@ export default function Base64ImagePage() {
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-foreground font-mono text-sm"
             />
           </div>
-          <Button type="button" variant="primary" onClick={parse}>
+          <Button type="button" variant="cta" onClick={parse}>
             Decode & preview
           </Button>
           {error && (

@@ -112,7 +112,7 @@ export default function CountdownPage() {
                 Pause
               </Button>
             ) : (
-              <Button type="button" variant="primary" onClick={start} disabled={totalSec <= 0}>
+              <Button type="button" variant="cta" onClick={start} disabled={totalSec <= 0}>
                 Start
               </Button>
             )}

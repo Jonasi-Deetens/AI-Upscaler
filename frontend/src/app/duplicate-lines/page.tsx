@@ -101,7 +101,7 @@ export default function DuplicateLinesPage() {
               </button>
             ))}
           </div>
-          <Button type="button" variant="primary" onClick={run}>
+          <Button type="button" variant="cta" onClick={run}>
             Remove duplicates
           </Button>
           {output !== "" && (

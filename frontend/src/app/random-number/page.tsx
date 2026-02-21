@@ -110,7 +110,7 @@ export default function RandomNumberPage() {
               <span className="text-sm text-foreground">Float</span>
             </label>
           </div>
-          <Button type="button" variant="primary" onClick={generate}>
+          <Button type="button" variant="cta" onClick={generate}>
             Generate
           </Button>
           {result !== null && (

@@ -970,6 +970,219 @@ def _download_info_compress_pdf(job) -> tuple[str, str]:
     return f"{base}_compressed.pdf", "application/pdf"
 
 
+def _validate_pdf_to_images(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    fmt = (opts.get("format") or "png").strip().lower()
+    if fmt not in ("png", "jpeg", "jpg"):
+        fmt = "png"
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"format": fmt},
+    }
+
+
+def _download_info_pdf_to_images(job) -> tuple[str, str]:
+    return "pages.zip", "application/zip"
+
+
+def _validate_pdf_metadata(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    strip = opts.get("strip") is True
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"strip": strip},
+    }
+
+
+def _download_info_pdf_metadata(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_metadata.pdf", "application/pdf"
+
+
+def _validate_pdf_rotate(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    rotation = int(opts.get("rotation") or 90)
+    if rotation not in (90, -90, 180, 270):
+        rotation = 90
+    pages = opts.get("pages")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"rotation": rotation, "pages": pages},
+    }
+
+
+def _download_info_pdf_rotate(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_rotated.pdf", "application/pdf"
+
+
+def _validate_pdf_reorder(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    order = opts.get("page_order")
+    if not order or not isinstance(order, list):
+        raise HTTPException(400, detail="page_order must be a list of 1-based page numbers")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"page_order": order},
+    }
+
+
+def _download_info_pdf_reorder(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_reordered.pdf", "application/pdf"
+
+
+def _validate_pdf_unlock(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    password = opts.get("password")
+    if password is None or (isinstance(password, str) and not password.strip()):
+        raise HTTPException(400, detail="password is required for PDF unlock")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"password": password if isinstance(password, str) else str(password)},
+    }
+
+
+def _download_info_pdf_unlock(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_unlocked.pdf", "application/pdf"
+
+
+def _validate_pdf_protect(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    user_password = opts.get("user_password")
+    if user_password is None or (isinstance(user_password, str) and not user_password.strip()):
+        raise HTTPException(400, detail="user_password is required for PDF protect")
+    owner_password = opts.get("owner_password")
+    if owner_password is not None and isinstance(owner_password, str) and not owner_password.strip():
+        owner_password = None
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {
+            "user_password": user_password if isinstance(user_password, str) else str(user_password),
+            "owner_password": owner_password if owner_password is None else str(owner_password),
+        },
+    }
+
+
+def _download_info_pdf_protect(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_protected.pdf", "application/pdf"
+
+
+def _validate_pdf_remove_pages(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    opts = options or {}
+    pages_to_remove = opts.get("pages_to_remove")
+    if not pages_to_remove or not isinstance(pages_to_remove, list):
+        raise HTTPException(400, detail="pages_to_remove must be a list of 1-based page numbers")
+    try:
+        normalized = [int(p) for p in pages_to_remove if p is not None]
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail="pages_to_remove must contain integers")
+    if any(p < 1 for p in normalized):
+        raise HTTPException(400, detail="page numbers must be >= 1")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"pages_to_remove": normalized},
+    }
+
+
+def _download_info_pdf_remove_pages(job) -> tuple[str, str]:
+    base = _base_name(job)
+    return f"{base}_removed.pdf", "application/pdf"
+
+
+def _validate_pdf_extract_images(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _download_info_pdf_extract_images(job) -> tuple[str, str]:
+    return "images.zip", "application/zip"
+
+
 def _validate_heic_to_jpg(
     scale: int,
     denoise_first: bool,
@@ -1091,6 +1304,14 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "inpaint": (_validate_inpaint, _download_info_inpaint),
     "pdf_merge_split": (_validate_pdf_merge_split, _download_info_pdf_merge_split),
     "compress_pdf": (_validate_compress_pdf, _download_info_compress_pdf),
+    "pdf_to_images": (_validate_pdf_to_images, _download_info_pdf_to_images),
+    "pdf_metadata": (_validate_pdf_metadata, _download_info_pdf_metadata),
+    "pdf_rotate": (_validate_pdf_rotate, _download_info_pdf_rotate),
+    "pdf_reorder": (_validate_pdf_reorder, _download_info_pdf_reorder),
+    "pdf_unlock": (_validate_pdf_unlock, _download_info_pdf_unlock),
+    "pdf_protect": (_validate_pdf_protect, _download_info_pdf_protect),
+    "pdf_remove_pages": (_validate_pdf_remove_pages, _download_info_pdf_remove_pages),
+    "pdf_extract_images": (_validate_pdf_extract_images, _download_info_pdf_extract_images),
     "heic_to_jpg": (_validate_heic_to_jpg, _download_info_heic_to_jpg),
     "svg_to_png": (_validate_svg_to_png, _download_info_svg_to_png),
     "favicon": (_validate_favicon, _download_info_favicon),

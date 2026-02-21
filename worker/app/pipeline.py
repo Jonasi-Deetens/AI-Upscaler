@@ -28,6 +28,14 @@ from app.processors import (
     inpaint,
     ocr,
     pdf_merge_split,
+    pdf_metadata,
+    pdf_protect,
+    pdf_extract_images,
+    pdf_remove_pages,
+    pdf_reorder,
+    pdf_rotate,
+    pdf_to_images,
+    pdf_unlock,
     pixelate,
     rename,
     resize,
@@ -168,6 +176,38 @@ def _run_compress_pdf(job, input_path: Path, output_path: Path) -> None:
     compress_pdf.run(job, input_path, output_path)
 
 
+def _run_pdf_to_images(job, input_path: Path, output_path: Path) -> None:
+    pdf_to_images.run(job, input_path, output_path)
+
+
+def _run_pdf_metadata(job, input_path: Path, output_path: Path) -> None:
+    pdf_metadata.run(job, input_path, output_path)
+
+
+def _run_pdf_rotate(job, input_path: Path, output_path: Path) -> None:
+    pdf_rotate.run(job, input_path, output_path)
+
+
+def _run_pdf_reorder(job, input_path: Path, output_path: Path) -> None:
+    pdf_reorder.run(job, input_path, output_path)
+
+
+def _run_pdf_unlock(job, input_path: Path, output_path: Path) -> None:
+    pdf_unlock.run(job, input_path, output_path)
+
+
+def _run_pdf_protect(job, input_path: Path, output_path: Path) -> None:
+    pdf_protect.run(job, input_path, output_path)
+
+
+def _run_pdf_extract_images(job, input_path: Path, output_path: Path) -> None:
+    pdf_extract_images.run(job, input_path, output_path)
+
+
+def _run_pdf_remove_pages(job, input_path: Path, output_path: Path) -> None:
+    pdf_remove_pages.run(job, input_path, output_path)
+
+
 def _run_heic_to_jpg(job, input_path: Path, output_path: Path) -> None:
     heic_to_jpg.run(job, input_path, output_path)
 
@@ -251,6 +291,14 @@ METHOD_RUNNERS: dict = {
     "inpaint": _run_inpaint,
     "pdf_merge_split": _run_pdf_merge_split,
     "compress_pdf": _run_compress_pdf,
+    "pdf_to_images": _run_pdf_to_images,
+    "pdf_metadata": _run_pdf_metadata,
+    "pdf_rotate": _run_pdf_rotate,
+    "pdf_reorder": _run_pdf_reorder,
+    "pdf_unlock": _run_pdf_unlock,
+    "pdf_protect": _run_pdf_protect,
+    "pdf_extract_images": _run_pdf_extract_images,
+    "pdf_remove_pages": _run_pdf_remove_pages,
     "heic_to_jpg": _run_heic_to_jpg,
     "svg_to_png": _run_svg_to_png,
     "favicon": _run_favicon,

@@ -10,6 +10,10 @@ import { useMobile } from "@/hooks/useMobile";
 
 const CATEGORY_LABELS: Record<HubToolCategory, string> = {
   image: "Image",
+  conversion: "Conversion",
+  calculators: "Calculators",
+  health: "Health",
+  seo: "SEO & sharing",
   pdf: "PDF",
   text: "Text",
   dev: "Dev & security",
@@ -61,7 +65,7 @@ export function HomeApps({ tools }: HomeAppsProps) {
               {CATEGORY_LABELS[category]}
             </h2>
             <ul
-              className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 last:mb-8"
+              className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 last:mb-8"
               aria-label={`${CATEGORY_LABELS[category]} apps`}
             >
               {categoryTools.map((tool) => (

@@ -109,6 +109,12 @@ def upscale_task(job_id: str) -> None:
                 input_path = tmp / "input"
                 if job.method == "compress_pdf":
                     output_path = tmp / "output.pdf"
+                elif job.method == "pdf_to_images":
+                    output_path = tmp / "output.zip"
+                elif job.method == "pdf_extract_images":
+                    output_path = tmp / "output.zip"
+                elif job.method in ("pdf_metadata", "pdf_rotate", "pdf_reorder", "pdf_unlock", "pdf_protect", "pdf_remove_pages"):
+                    output_path = tmp / "output.pdf"
                 elif job.method == "ocr":
                     output_path = tmp / "output.txt"
                 elif job.method == "heic_to_jpg":
@@ -189,6 +195,14 @@ def upscale_task(job_id: str) -> None:
                 "inpaint": "Inpaint",
                 "pdf_merge_split": "PDF merge/split",
                 "compress_pdf": "Compress PDF",
+                "pdf_to_images": "PDF to images",
+                "pdf_metadata": "PDF metadata",
+                "pdf_rotate": "PDF rotate",
+                "pdf_reorder": "PDF reorder",
+                "pdf_unlock": "PDF unlock",
+                "pdf_protect": "PDF protect",
+                "pdf_remove_pages": "PDF remove pages",
+                "pdf_extract_images": "PDF extract images",
                 "heic_to_jpg": "HEIC to JPG",
                 "svg_to_png": "SVG to PNG",
                 "favicon": "Favicon generator",

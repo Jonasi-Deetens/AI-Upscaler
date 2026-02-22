@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Focus,
   Sun,
+  Crosshair,
   Type,
   FilePen,
   Contrast,
@@ -26,6 +27,7 @@ import {
   FileText,
   Circle,
   Camera,
+  ScanSearch,
   Grid3x3,
   CircleUser,
   Paintbrush,
@@ -70,6 +72,7 @@ import {
   ImageDown,
   ScanLine,
   ScanText,
+  Eraser,
   Globe,
   Unlock,
   Lock,
@@ -117,6 +120,15 @@ export type ToolIconId =
   | "smart-crop"
   | "background-blur"
   | "inpaint"
+  | "object-remove"
+  | "deblur"
+  | "document-enhance"
+  | "ai-denoise"
+  | "upscale-print"
+  | "outpaint"
+  | "background-replace"
+  | "hdr-merge"
+  | "tone-map"
   | "word-counter"
   | "password-generator"
   | "qr-code"
@@ -221,6 +233,15 @@ const TOOL_ICONS: Record<ToolIconId, { icon: LucideIcon; color: IconColor }> = {
   "smart-crop": { icon: ScanLine, color: "cyan" },
   "background-blur": { icon: CircleUser, color: "emerald" },
   inpaint: { icon: Paintbrush, color: "amber" },
+  "object-remove": { icon: Eraser, color: "rose" },
+  deblur: { icon: Crosshair, color: "cyan" },
+  "document-enhance": { icon: ScanSearch, color: "teal" },
+  "ai-denoise": { icon: Wand2, color: "violet" },
+  "upscale-print": { icon: Ruler, color: "orange" },
+  outpaint: { icon: Maximize2, color: "indigo" },
+  "background-replace": { icon: ImagePlus, color: "emerald" },
+  "hdr-merge": { icon: Sun, color: "amber" },
+  "tone-map": { icon: Contrast, color: "cyan" },
   "word-counter": { icon: FileText, color: "blue" },
   "password-generator": { icon: Key, color: "emerald" },
   "qr-code": { icon: QrCode, color: "zinc" },

@@ -8,9 +8,13 @@ import shutil
 
 from app.config import settings
 from app.processors import (
+    ai_denoise,
     auto_levels,
     background_blur,
     background_remove,
+    background_replace,
+    hdr_merge,
+    tone_map,
     blur_sharpen,
     border,
     brightness_contrast,
@@ -19,13 +23,16 @@ from app.processors import (
     compress_pdf,
     convert,
     crop,
+    deblur,
     denoise,
+    document_enhance,
     face_enhance,
     favicon,
     filters,
     heic_to_jpg,
     image_to_pdf,
     inpaint,
+    object_remove,
     ocr,
     pdf_merge_split,
     pdf_metadata,
@@ -46,6 +53,8 @@ from app.processors import (
     strip_metadata,
     svg_to_png,
     tilt_shift,
+    outpaint,
+    upscale_print,
     vignette,
     watermark,
 )
@@ -168,6 +177,30 @@ def _run_inpaint(job, input_path: Path, output_path: Path) -> None:
     inpaint.run(job, input_path, output_path)
 
 
+def _run_object_remove(job, input_path: Path, output_path: Path) -> None:
+    object_remove.run(job, input_path, output_path)
+
+
+def _run_deblur(job, input_path: Path, output_path: Path) -> None:
+    deblur.run(input_path, output_path)
+
+
+def _run_document_enhance(job, input_path: Path, output_path: Path) -> None:
+    document_enhance.run(job, input_path, output_path)
+
+
+def _run_ai_denoise(job, input_path: Path, output_path: Path) -> None:
+    ai_denoise.run(job, input_path, output_path)
+
+
+def _run_upscale_print(job, input_path: Path, output_path: Path) -> None:
+    upscale_print.run(job, input_path, output_path)
+
+
+def _run_outpaint(job, input_path: Path, output_path: Path) -> None:
+    outpaint.run(job, input_path, output_path)
+
+
 def _run_pdf_merge_split(job, input_path: Path, output_path: Path) -> None:
     pdf_merge_split.run(job, input_path, output_path)
 
@@ -234,6 +267,18 @@ def _run_background_remove(job, input_path: Path, output_path: Path) -> None:
     background_remove.run(current, output_path)
 
 
+def _run_background_replace(job, input_path: Path, output_path: Path) -> None:
+    background_replace.run(job, input_path, output_path)
+
+
+def _run_hdr_merge(job, input_path: Path, output_path: Path) -> None:
+    hdr_merge.run(job, input_path, output_path)
+
+
+def _run_tone_map(job, input_path: Path, output_path: Path) -> None:
+    tone_map.run(job, input_path, output_path)
+
+
 def _run_upscale(job, input_path: Path, output_path: Path) -> None:
     current = input_path
     work_dir = input_path.parent
@@ -289,6 +334,12 @@ METHOD_RUNNERS: dict = {
     "smart_crop": _run_smart_crop,
     "background_blur": _run_background_blur,
     "inpaint": _run_inpaint,
+    "object_remove": _run_object_remove,
+    "deblur": _run_deblur,
+    "document_enhance": _run_document_enhance,
+    "ai_denoise": _run_ai_denoise,
+    "upscale_print": _run_upscale_print,
+    "outpaint": _run_outpaint,
     "pdf_merge_split": _run_pdf_merge_split,
     "compress_pdf": _run_compress_pdf,
     "pdf_to_images": _run_pdf_to_images,
@@ -304,6 +355,9 @@ METHOD_RUNNERS: dict = {
     "favicon": _run_favicon,
     "ocr": _run_ocr,
     METHOD_BACKGROUND_REMOVE: _run_background_remove,
+    "background_replace": _run_background_replace,
+    "hdr_merge": _run_hdr_merge,
+    "tone_map": _run_tone_map,
     "real_esrgan": _run_upscale,
     "swinir": _run_upscale,
     "esrgan": _run_upscale,

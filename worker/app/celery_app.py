@@ -1,3 +1,15 @@
+# Apply before any code imports realesrgan/basicsr (they expect torchvision.transforms.functional_tensor, removed in newer torchvision)
+def _patch_torchvision_functional_tensor():
+    try:
+        import sys
+        import torchvision.transforms.functional as _ft
+        sys.modules["torchvision.transforms.functional_tensor"] = _ft
+    except Exception:
+        pass
+
+
+_patch_torchvision_functional_tensor()
+
 from celery import Celery
 
 from app.config import settings

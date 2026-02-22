@@ -193,6 +193,15 @@ def upscale_task(job_id: str) -> None:
                 "smart_crop": "Smart crop",
                 "background_blur": "Portrait blur",
                 "inpaint": "Inpaint",
+                "object_remove": "AI object removal",
+                "deblur": "Deblur",
+                "document_enhance": "Document enhance",
+                "ai_denoise": "AI denoise",
+                "upscale_print": "Upscale for print",
+                "outpaint": "Outpaint",
+                "background_replace": "Background replace",
+                "hdr_merge": "HDR merge",
+                "tone_map": "Tone map",
                 "pdf_merge_split": "PDF merge/split",
                 "compress_pdf": "Compress PDF",
                 "pdf_to_images": "PDF to images",
@@ -217,6 +226,24 @@ def upscale_task(job_id: str) -> None:
                 detail = "Running Background remove…"
             elif job.method == "restore":
                 detail = "Running Restore & colorize…"
+            elif job.method == "object_remove":
+                detail = "Running AI object removal…"
+            elif job.method == "deblur":
+                detail = "Running Deblur…"
+            elif job.method == "document_enhance":
+                detail = "Running Document enhance…"
+            elif job.method == "ai_denoise":
+                detail = "Running AI denoise…"
+            elif job.method == "upscale_print":
+                detail = "Upscaling for print…"
+            elif job.method == "outpaint":
+                detail = "Running Outpaint…"
+            elif job.method == "background_replace":
+                detail = "Running Background replace…"
+            elif job.method == "hdr_merge":
+                detail = "Running HDR merge…"
+            elif job.method == "tone_map":
+                detail = "Running Tone map…"
             elif job.method == "resize":
                 detail = "Resizing…"
             elif job.method == "rotate_flip":

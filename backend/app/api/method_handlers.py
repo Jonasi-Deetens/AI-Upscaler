@@ -125,6 +125,229 @@ def _validate_restore(
     }
 
 
+def _validate_object_remove(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for object_remove")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _validate_deblur(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for deblur")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _validate_document_enhance(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for document_enhance")
+    opts = options or {}
+    binarize = opts.get("binarize") is True
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"binarize": binarize},
+    }
+
+
+def _validate_ai_denoise(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for ai_denoise")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+PAPER_PRESETS = ("A4", "A3")
+PRINT_DPI_MIN, PRINT_DPI_MAX = 72, 600
+
+
+def _validate_upscale_print(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for upscale_print")
+    opts = options or {}
+    paper = (opts.get("paper_preset") or "").strip().upper()
+    width_mm = opts.get("width_mm")
+    height_mm = opts.get("height_mm")
+    if paper and paper not in PAPER_PRESETS:
+        raise HTTPException(400, detail=f"paper_preset must be one of: {', '.join(PAPER_PRESETS)}")
+    if not paper and (width_mm is None or height_mm is None):
+        raise HTTPException(400, detail="Provide paper_preset (A4, A3) or width_mm and height_mm")
+    if paper:
+        # A4 = 210×297 mm, A3 = 297×420 mm
+        if paper == "A4":
+            width_mm, height_mm = 210, 297
+        else:
+            width_mm, height_mm = 297, 420
+    else:
+        try:
+            width_mm = int(width_mm)
+            height_mm = int(height_mm)
+            if width_mm < 1 or width_mm > 2000 or height_mm < 1 or height_mm > 2000:
+                raise HTTPException(400, detail="width_mm and height_mm must be between 1 and 2000")
+        except (TypeError, ValueError):
+            raise HTTPException(400, detail="width_mm and height_mm must be integers")
+    dpi = opts.get("dpi", 300)
+    try:
+        dpi = int(dpi)
+        if dpi < PRINT_DPI_MIN or dpi > PRINT_DPI_MAX:
+            raise HTTPException(400, detail=f"dpi must be between {PRINT_DPI_MIN} and {PRINT_DPI_MAX}")
+    except (TypeError, ValueError):
+        raise HTTPException(400, detail=f"dpi must be an integer between {PRINT_DPI_MIN} and {PRINT_DPI_MAX}")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {"width_mm": width_mm, "height_mm": height_mm, "dpi": dpi},
+    }
+
+
+def _validate_hdr_merge(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for hdr_merge")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _validate_tone_map(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for tone_map")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _validate_background_replace(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for background_replace")
+    return 1, {
+        "denoise_first": denoise_first,
+        "face_enhance": face_enhance,
+        "target_format": None,
+        "quality": None,
+        "options": options if options else {},
+    }
+
+
+def _validate_outpaint(
+    scale: int,
+    denoise_first: bool,
+    face_enhance: bool,
+    target_format: str | None,
+    quality: str | None,
+    options: dict | None,
+) -> tuple[int, dict[str, Any]]:
+    if scale != 1:
+        raise HTTPException(400, detail="scale must be 1 for outpaint")
+    opts = options or {}
+    extend_left = int(opts.get("extend_left", 0))
+    extend_right = int(opts.get("extend_right", 0))
+    extend_top = int(opts.get("extend_top", 0))
+    extend_bottom = int(opts.get("extend_bottom", 0))
+    if any(x < 0 for x in (extend_left, extend_right, extend_top, extend_bottom)):
+        raise HTTPException(400, detail="extend values must be non-negative")
+    if extend_left + extend_right + extend_top + extend_bottom == 0:
+        raise HTTPException(400, detail="At least one of extend_left, extend_right, extend_top, extend_bottom must be positive")
+    total = extend_left + extend_right + extend_top + extend_bottom
+    if total > 2000:
+        raise HTTPException(400, detail="Total extension (sum of extend_*) must be at most 2000 pixels")
+    return 1, {
+        "denoise_first": False,
+        "face_enhance": False,
+        "target_format": None,
+        "quality": None,
+        "options": {
+            "extend_left": extend_left,
+            "extend_right": extend_right,
+            "extend_top": extend_top,
+            "extend_bottom": extend_bottom,
+        },
+    }
+
+
 def _validate_upscale(
     scale: int,
     denoise_first: bool,
@@ -438,6 +661,44 @@ def _download_info_compress(job) -> tuple[str, str]:
 
 def _download_info_restore(job) -> tuple[str, str]:
     return f"{_base_name(job)}_restored.png", "image/png"
+
+
+def _download_info_object_remove(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_object_removed.png", "image/png"
+
+
+def _download_info_deblur(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_deblurred.png", "image/png"
+
+
+def _download_info_document_enhance(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_document.png", "image/png"
+
+
+def _download_info_ai_denoise(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_ai_denoised.png", "image/png"
+
+
+def _download_info_upscale_print(job) -> tuple[str, str]:
+    opts = getattr(job, "options", None) or {}
+    dpi = opts.get("dpi", 300)
+    return f"{_base_name(job)}_print_{dpi}dpi.png", "image/png"
+
+
+def _download_info_outpaint(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_outpainted.png", "image/png"
+
+
+def _download_info_background_replace(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_background_replaced.png", "image/png"
+
+
+def _download_info_hdr_merge(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_hdr.png", "image/png"
+
+
+def _download_info_tone_map(job) -> tuple[str, str]:
+    return f"{_base_name(job)}_tone_mapped.png", "image/png"
 
 
 def _download_info_upscale(job) -> tuple[str, str]:
@@ -1280,6 +1541,15 @@ METHOD_HANDLERS: dict[str, tuple[Any, Any]] = {
     "convert": (_validate_convert, _download_info_convert),
     "compress": (_validate_compress, _download_info_compress),
     "restore": (_validate_restore, _download_info_restore),
+    "object_remove": (_validate_object_remove, _download_info_object_remove),
+    "deblur": (_validate_deblur, _download_info_deblur),
+    "document_enhance": (_validate_document_enhance, _download_info_document_enhance),
+    "ai_denoise": (_validate_ai_denoise, _download_info_ai_denoise),
+    "upscale_print": (_validate_upscale_print, _download_info_upscale_print),
+    "outpaint": (_validate_outpaint, _download_info_outpaint),
+    "background_replace": (_validate_background_replace, _download_info_background_replace),
+    "hdr_merge": (_validate_hdr_merge, _download_info_hdr_merge),
+    "tone_map": (_validate_tone_map, _download_info_tone_map),
     "resize": (_validate_resize, _download_info_resize),
     "rotate_flip": (_validate_rotate_flip, _download_info_rotate_flip),
     "crop": (_validate_crop, _download_info_crop),

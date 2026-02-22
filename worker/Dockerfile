@@ -29,10 +29,13 @@ RUN sed -i 's/\r$//' /worker-entrypoint.sh && chmod +x /worker-entrypoint.sh
 
 COPY . .
 
-# Run as non-root to avoid Celery security warning
+# Run as non-root to avoid Celery security warning.
+# chown -R can hit I/O errors on large weight files (Docker overlay/disk); allow build to succeed.
+# Celery can still read root-owned weight files if they are world-readable.
 RUN adduser --disabled-password --gecos "" --uid 1000 celery \
-    && chown -R celery:celery /app \
-    && chown celery:celery /worker-entrypoint.sh
+    && (chown -R celery:celery /app || true) \
+    && (chown celery:celery /worker-entrypoint.sh || true) \
+    && (chmod -R a+rX /app || true)
 
 USER celery
 

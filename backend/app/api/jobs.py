@@ -127,8 +127,23 @@ def upload_jobs(
     filenames = [v[0] for v in valid]
     storage = get_storage()
 
-    MULTI_INPUT_METHODS = ("collage", "image_to_pdf", "inpaint", "pdf_merge_split")
+    MULTI_INPUT_METHODS = ("collage", "image_to_pdf", "inpaint", "object_remove", "background_replace", "hdr_merge", "pdf_merge_split")
     if method in MULTI_INPUT_METHODS:
+        if method == "object_remove" and len(valid) != 2:
+            raise HTTPException(
+                400,
+                detail="object_remove requires exactly 2 files: image first, then mask (white = area to remove).",
+            )
+        if method == "background_replace" and len(valid) != 2:
+            raise HTTPException(
+                400,
+                detail="background_replace requires exactly 2 files: subject image first, then background image.",
+            )
+        if method == "hdr_merge" and len(valid) < 3:
+            raise HTTPException(
+                400,
+                detail="hdr_merge requires at least 3 exposure brackets (dark to bright).",
+            )
         job = job_service.create_multi_input_job(
             db,
             filenames,
